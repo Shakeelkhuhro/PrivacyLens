@@ -13,22 +13,22 @@ export default function Layout() {
           let iconName;
           switch (route.name) {
             case 'index':
-              iconName = 'home';
+              iconName = focused => focused ? 'home' : 'home-outline';
               break;
             case 'ranking':
-              iconName = 'chart-bar';
+              iconName = focused => focused ? 'chart-bar' : 'chart-bar-stacked';
               break;
             case 'about':
-              iconName = 'information-outline';
+              iconName = focused => focused ? 'information' : 'information-outline';
               break;
             default:
-              iconName = 'apps';
+              iconName = focused => 'apps';
           }
 
           return {
             tabBarIcon: ({ focused, color, size }) => (
               <Icon
-                name={focused ? iconName : `${iconName}-outline`}
+                name={typeof iconName === 'function' ? iconName(focused) : iconName}
                 size={size}
                 color={color}
               />
@@ -42,7 +42,29 @@ export default function Layout() {
             headerShown: false,
           };
         }}
-      />
+      >
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: 'Home',
+            tabBarLabel: 'Home',
+          }}
+        />
+        <Tabs.Screen
+          name="ranking"
+          options={{
+            title: 'Ranking',
+            tabBarLabel: 'Ranking',
+          }}
+        />
+        <Tabs.Screen
+          name="about"
+          options={{
+            title: 'About',
+            tabBarLabel: 'About',
+          }}
+        />
+      </Tabs>
     </>
   );
 }
