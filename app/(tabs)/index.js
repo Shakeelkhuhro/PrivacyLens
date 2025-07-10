@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useRouter } from 'expo-router';
@@ -15,6 +16,8 @@ import SearchBar from '../../src/components/SearchBar';
 import { getRecentAnalysis, mockApps } from '../../src/data/mockData';
 import { colors } from '../../src/styles/colors';
 import { typography } from '../../src/styles/typography';
+
+const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,38 +53,56 @@ export default function HomeScreen() {
         </View>
 
         {/* App Title */}
-        <Text style={styles.appTitle}>PrivacyLens</Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.appTitle}>PrivacyLens</Text>
+          <Text style={styles.subtitle}>Protecting your digital privacy</Text>
+        </View>
 
         {/* Search Bar */}
-        <SearchBar
-          value={searchQuery}
-          onChangeText={handleSearch}
-          placeholder="Search apps"
-        />
+        <View style={styles.searchContainer}>
+          <SearchBar
+            value={searchQuery}
+            onChangeText={handleSearch}
+            placeholder="Search apps, categories..."
+          />
+        </View>
 
         {/* Statistics */}
         <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Total Apps{'\n'}Analyzed</Text>
+          <TouchableOpacity style={styles.statCard}>
+            <View style={styles.statIcon}>
+              <Icon name="apps" size={24} color={colors.accent} />
+            </View>
             <Text style={styles.statValue}>{totalApps}</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Top{'\n'}Data Hungry</Text>
+            <Text style={styles.statLabel}>Total Apps Analyzed</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.statCard}>
+            <View style={styles.statIcon}>
+              <Icon name="alert-circle" size={24} color={colors.error} />
+            </View>
             <Text style={styles.statValue}>{dataHungryApps}</Text>
-          </View>
+            <Text style={styles.statLabel}>Data Hungry Apps</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Recent Analysis */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Recent Analysis</Text>
-          {recentAnalysis.map((app) => (
-            <AppCard
-              key={app.id}
-              app={app}
-              onPress={() => handleAppPress(app)}
-              showArrow
-            />
-          ))}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Analysis</Text>
+            <TouchableOpacity onPress={() => router.push('/ranking')}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.appList}>
+            {recentAnalysis.map((app) => (
+              <AppCard
+                key={app.id}
+                app={app}
+                onPress={() => handleAppPress(app)}
+                showArrow
+              />
+            ))}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -95,50 +116,112 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 10,
+    paddingBottom: 16,
   },
-  menuButton: { padding: 8 },
-  searchButton: { padding: 8 },
+  menuButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  searchButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  titleContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 24,
+  },
   appTitle: {
     ...typography.heading1,
     color: colors.text,
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  subtitle: {
+    ...typography.body,
+    color: colors.textSecondary,
     textAlign: 'center',
-    marginVertical: 20,
+  },
+  searchContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 32,
   },
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 30,
+    paddingHorizontal: 20,
+    gap: 16,
+    marginBottom: 32,
   },
   statCard: {
     flex: 1,
-    marginHorizontal: 10,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  statLabel: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: 'left',
-    marginBottom: 8,
+  statIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
   },
   statValue: {
     ...typography.heading1,
     color: colors.text,
-    fontSize: 36,
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  statLabel: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 18,
   },
   sectionContainer: {
-    marginTop: 20,
-    marginBottom: 30,
+    paddingHorizontal: 20,
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   sectionTitle: {
     ...typography.heading2,
     color: colors.text,
-    marginBottom: 16,
+  },
+  viewAllText: {
+    ...typography.body,
+    color: colors.accent,
+    fontWeight: '600',
+  },
+  appList: {
+    gap: 12,
   },
 });
