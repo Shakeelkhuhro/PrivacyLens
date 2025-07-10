@@ -25,7 +25,7 @@ export default function HomeScreen() {
   const [menuVisible, setMenuVisible] = useState(false); // ADD THIS STATE
   const router = useRouter();
 
-  const recentAnalysis = getRecentAnalysis();
+  const recentAnalysis = getRecentAnalysis().slice(0, 3); // Show only first 3
   const totalApps = mockApps.length;
   const dataHungryApps = mockApps.filter(app => app.privacyScore < 50).length;
 
