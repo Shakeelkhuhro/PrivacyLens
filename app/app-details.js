@@ -2,21 +2,25 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
-  TouchableOpacity,
   SafeAreaView,
+  TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import Icon from '@expo/vector-icons/MaterialCommunityIcons';
+import DataTypeIcon from '../src/components/DataTypeIcon';
 import { colors } from '../src/styles/colors';
 import { typography } from '../src/styles/typography';
-
+import { getScoreColor, getScoreDescription } from '../src/utils/privacyUtils';
 
 export default function AppDetailsScreen() {
   const router = useRouter();
   const { app } = useLocalSearchParams();
-  const parsedApp = typeof app === 'string' ? JSON.parse(app) : app;
+  const parsedApp = JSON.parse(app);
+  
+  const scoreColor = getScoreColor(parsedApp.privacyScore);
+  const scoreDescription = getScoreDescription(parsedApp.privacyScore);
 
   const handleViewDetails = () => {
     router.push({
@@ -27,46 +31,61 @@ export default function AppDetailsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => router.back()}
+        >
           <Icon name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
+        <Text style={styles.headerTitle}>App Details</Text>
+        <View style={styles.placeholder} />
+      </View>
 
-        <View style={styles.headerContainer}>
-          <View style={styles.appIconContainer}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.appHeader}>
+          <View style={styles.iconContainer}>
             <DataTypeIcon type={parsedApp.icon} size={60} />
           </View>
           <Text style={styles.appName}>{parsedApp.name}</Text>
+          <Text style={styles.developer}>{parsedApp.developer}</Text>
+          <Text style={styles.category}>{parsedApp.category}</Text>
         </View>
 
-        <View style={styles.tagsContainer}>
-          {parsedApp.dataTypes?.map((dataType, index) => (
-            <View key={index} style={styles.tag}>
-              <Text style={styles.tagText}>{dataType}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Privacy Policy</Text>
-          <Text style={styles.privacyDescription}>
-            {parsedApp.privacyDescription || 'This app collects various types of user data...'}
-          </Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Collected Data</Text>
-          <View style={styles.dataTypesContainer}>
-            {parsedApp.dataTypes?.map((dataType, index) => (
-              <View key={index} style={styles.dataTypeTag}>
-                <Text style={styles.dataTypeText}>{dataType}</Text>
-              </View>
-            ))}
+        <View style={styles.scoreSection}>
+          <Text style={styles.sectionTitle}>Privacy Score</Text>
+          <View style={styles.scoreContainer}>
+            <Text style={[styles.scoreValue, { color: scoreColor }]}>
+              {parsedApp.privacyScore}
+            </Text>
+            <Text style={styles.scoreDescription}>{scoreDescription}</Text>
           </View>
         </View>
 
-        <TouchableOpacity style={styles.viewDetailsButton} onPress={handleViewDetails}>
-          <Text style={styles.viewDetailsText}>VIEW DETAILS</Text>
+        {parsedApp.dataTypes && parsedApp.dataTypes.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Data Collected</Text>
+            <View style={styles.tagsContainer}>
+              {parsedApp.dataTypes.map((dataType, index) => (
+                <View key={index} style={styles.tag}>
+                  <DataTypeIcon type={dataType.toLowerCase()} size={16} />
+                  <Text style={styles.tagText}>{dataType}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Description</Text>
+          <Text style={styles.description}>
+            {parsedApp.privacyDescription || parsedApp.shortDescription}
+          </Text>
+        </View>
+
+        <TouchableOpacity style={styles.detailsButton} onPress={handleViewDetails}>
+          <Text style={styles.detailsButtonText}>VIEW DETAILED ANALYSIS</Text>
+          <Icon name="chevron-right" size={20} color={colors.text} />
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -74,89 +93,129 @@ export default function AppDetailsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  scrollView: { flex: 1, paddingHorizontal: 20 },
-  backButton: {
-    padding: 8,
-    alignSelf: 'flex-start',
-    marginTop: 10,
-    marginBottom: 20,
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
-  headerContainer: {
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 30,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  appIconContainer: {
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    ...typography.heading2,
+    color: colors.text,
+  },
+  placeholder: {
+    width: 40,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  appHeader: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  iconContainer: {
     width: 80,
     height: 80,
-    borderRadius: 16,
+    borderRadius: 20,
     backgroundColor: colors.surface,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
   },
   appName: {
-    ...typography.heading1,
+    ...typography.heading2,
     color: colors.text,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  developer: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  category: {
+    ...typography.caption,
+    color: colors.accent,
+    textTransform: 'uppercase',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  scoreSection: {
+    alignItems: 'center',
+    marginBottom: 32,
+    paddingVertical: 20,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+  },
+  sectionTitle: {
+    ...typography.heading3,
+    color: colors.text,
+    marginBottom: 16,
+  },
+  scoreContainer: {
+    alignItems: 'center',
+  },
+  scoreValue: {
+    ...typography.score,
+    marginBottom: 8,
+  },
+  scoreDescription: {
+    ...typography.body,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginBottom: 30,
+    gap: 8,
   },
   tag: {
-    backgroundColor: colors.accent,
-    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
-    margin: 4,
+    gap: 6,
   },
   tagText: {
     ...typography.caption,
-    color: colors.background,
-    fontWeight: '600',
-  },
-  section: { marginBottom: 30 },
-  sectionTitle: {
-    ...typography.heading2,
     color: colors.text,
-    marginBottom: 12,
   },
-  privacyDescription: {
+  description: {
     ...typography.body,
     color: colors.textSecondary,
     lineHeight: 24,
   },
-  dataTypesContainer: {
+  detailsButton: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  dataTypeTag: {
-    backgroundColor: colors.accent,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    margin: 4,
-  },
-  dataTypeText: {
-    ...typography.caption,
-    color: colors.background,
-    fontWeight: '600',
-  },
-  viewDetailsButton: {
-    backgroundColor: colors.surface,
-    paddingVertical: 16,
-    borderRadius: 8,
     alignItems: 'center',
-    marginBottom: 30,
-    borderWidth: 1,
-    borderColor: colors.accent,
+    justifyContent: 'center',
+    backgroundColor: colors.accent,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginVertical: 20,
+    gap: 8,
   },
-  viewDetailsText: {
+  detailsButtonText: {
     ...typography.button,
-    color: colors.accent,
-    fontWeight: 'bold',
+    color: colors.text,
   },
 });
