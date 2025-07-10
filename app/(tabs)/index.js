@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 
 import AppCard from '../../src/components/AppCard';
 import SearchBar from '../../src/components/SearchBar';
+import DrawerMenu from '../../src/components/DrawerMenu'; // ADD THIS IMPORT
 import { getRecentAnalysis, mockApps } from '../../src/data/mockData';
 import { colors } from '../../src/styles/colors';
 import { typography } from '../../src/styles/typography';
@@ -21,6 +22,7 @@ const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [menuVisible, setMenuVisible] = useState(false); // ADD THIS STATE
   const router = useRouter();
 
   const recentAnalysis = getRecentAnalysis();
@@ -39,15 +41,24 @@ export default function HomeScreen() {
     // TODO: Implement search logic
   };
 
+  // ADD THESE FUNCTIONS
+  const toggleMenu = () => {
+    setMenuVisible(!menuVisible);
+  };
+
+  const handleSearchPress = () => {
+    console.log('Search pressed');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.menuButton}>
+          <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}> {/* ADD onPress */}
             <Icon name="menu" size={24} color={colors.text} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.searchButton}>
+          <TouchableOpacity style={styles.searchButton} onPress={handleSearchPress}> {/* ADD onPress */}
             <Icon name="magnify" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -69,14 +80,14 @@ export default function HomeScreen() {
 
         {/* Statistics */}
         <View style={styles.statsContainer}>
-          <TouchableOpacity style={styles.statCard}>
+          <TouchableOpacity style={styles.statCard} onPress={() => router.push('/ranking')}> {/* ADD onPress */}
             <View style={styles.statIcon}>
               <Icon name="apps" size={24} color={colors.accent} />
             </View>
             <Text style={styles.statValue}>{totalApps}</Text>
             <Text style={styles.statLabel}>Total Apps Analyzed</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.statCard}>
+          <TouchableOpacity style={styles.statCard} onPress={() => router.push('/ranking')}> {/* ADD onPress */}
             <View style={styles.statIcon}>
               <Icon name="alert-circle" size={24} color={colors.error} />
             </View>
@@ -105,10 +116,17 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* ADD THIS DRAWER MENU COMPONENT AT THE END */}
+      <DrawerMenu 
+        visible={menuVisible} 
+        onClose={() => setMenuVisible(false)} 
+      />
     </SafeAreaView>
   );
 }
 
+// Your existing styles remain the same
 const styles = StyleSheet.create({
   container: {
     flex: 1,
