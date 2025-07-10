@@ -81,11 +81,25 @@ PrivacyLens/
 - `src/styles/` - Color and typography definitions
 - `src/utils/` - Utility functions for privacy scoring
 
+## Key Components
+
+- **Home Screen** - Dashboard with search and recent analysis
+- **Ranking Screen** - Lists apps by privacy score categories
+- **App Details** - Shows detailed information about selected apps
+- **Privacy Dashboard** - Comprehensive privacy analysis view
+
 ## Customization
 
 - To add new apps or modify privacy data, edit `src/data/mockData.js`.
 - To adjust scoring logic, see `src/utils/privacyUtils.js`.
 - To change colors or fonts, update files in `src/styles/`.
+
+## Tech Stack
+
+- React Native with Expo
+- Expo Router for navigation
+- Vector icons for UI elements
+- Custom styling system
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
