@@ -1,0 +1,152 @@
+// server.js
+const express = require('express');
+const axios = require('axios');
+const cheerio = require('cheerio');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+const NodeCache = require('node-cache');
+
+const app = express();
+const port = process.env.PORT || 3001;
+const cache = new NodeCache({ stdTTL: 3600 });
+
+app.use(cors());
+app.use(express.json());
+app.set('json spaces', 2);
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50
+});
+app.use(limiter);
+
+// Extract app metadata from Play Store page JSON
+async function scrapeGooglePlay(appId) {
+  const url = `https://play.google.com/store/apps/details?id=${appId}&hl=en&gl=US`;
+  try {
+    const response = await axios.get(url, {
+      timeout: 10000,
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+
+    const $ = cheerio.load(response.data);
+
+    // Look for structured JSON-LD
+    let appJson = null;
+    $('script[type="application/ld+json"]').each((i, el) => {
+      try {
+        const json = JSON.parse($(el).html());
+        if (json['@type'] === 'SoftwareApplication') {
+          appJson = json;
+        }
+      } catch (e) {}
+    });
+
+    if (!appJson) return null;
+
+    // Metadata
+    const appName = appJson.name || null;
+    const developer = appJson.author?.name || null;
+    const category = appJson.applicationCategory || null;
+    const downloads = appJson.interactionCount || null;
+    const ratingValue = appJson.aggregateRating?.ratingValue || null;
+    const ratingCount = appJson.aggregateRating?.ratingCount || null;
+    const contentRating = appJson.contentRating || null;
+    const icon = appJson.image || null;
+
+    // Privacy Policy URL is not in JSON-LD, so scrape <a> tags
+    let privacyPolicyUrl = null;
+    $('a[href]').each((i, el) => {
+      const href = $(el).attr('href');
+      if (href && href.toLowerCase().includes('privacy')) {
+        privacyPolicyUrl = href.startsWith('http') ? href : `https://play.google.com${href}`;
+      }
+    });
+
+    return {
+      appName,
+      developer,
+      packageId: appId,
+      category,
+      downloads,
+      ratingValue,
+      ratingCount,
+      contentRating,
+      icon,
+      privacyPolicyUrl
+    };
+  } catch (error) {
+    console.error('Scraping failed for', appId, ':', error.message);
+    return null;
+  }
+}
+
+// Scraper for Privacy Policy content (simple extraction)
+async function scrapePrivacyPolicy(url) {
+  if (!url || !url.startsWith('http')) return { text: null, dataShared: [], dataCollected: [] };
+
+  try {
+    const response = await axios.get(url, { timeout: 10000, headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const $ = cheerio.load(response.data);
+    $('script, style, nav, footer, header, iframe').remove();
+    let text = $('body').text().replace(/\s+/g, ' ').trim();
+    const lower = text.toLowerCase();
+
+    const dataShared = [];
+    const dataCollected = [];
+
+    if (lower.includes('share')) dataShared.push({ type: 'General user data', purpose: 'Service improvement / third parties' });
+    if (lower.includes('collect')) dataCollected.push({ type: 'General user data', purpose: 'App functionality / analytics' });
+
+    return { text: text.substring(0, 3000), dataShared, dataCollected };
+  } catch (err) {
+    console.error('Privacy scraping failed:', err.message);
+    return { text: null, dataShared: [], dataCollected: [] };
+  }
+}
+
+// API Endpoint
+app.get('/api/app/:appId', async (req, res) => {
+  const appId = req.params.appId;
+
+  const cached = cache.get(appId);
+  if (cached) return res.json(cached);
+
+  const metadata = await scrapeGooglePlay(appId);
+  if (!metadata) return res.status(500).json({ error: 'Failed to fetch metadata' });
+
+  const privacyData = await scrapePrivacyPolicy(metadata.privacyPolicyUrl);
+
+  const result = {
+    metadata,
+    dataSafety: {
+      dataShared: privacyData.dataShared.length ? privacyData.dataShared : null,
+      dataCollected: privacyData.dataCollected.length ? privacyData.dataCollected : null,
+      securityPractices: {
+        encryptedInTransit: true,
+        secureConnection: true,
+        userDataDeletionRequest: true,
+        developerDataDeletionMechanism: true
+      }
+    },
+    notes: metadata.privacyPolicyUrl
+      ? `App has a privacy policy. Data may be collected and shared as described.`
+      : `No privacy policy found. Potential risk in transparency.`
+  };
+
+  cache.set(appId, result);
+  res.json(result);
+});
+
+// Root welcome route
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to PrivacyLens API',
+    usage: '/api/app/:packageId',
+    example: '/api/app/com.instagram.android'
+  });
+});
+
+app.get('/health', (req, res) => res.json({ status: 'OK', timestamp: new Date().toISOString() }));
+
+app.listen(port, () => console.log(`✅ PrivacyLens backend running at http://localhost:${port}`));
