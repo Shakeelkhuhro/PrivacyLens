@@ -67,9 +67,9 @@ export default function DrawerMenu({ visible, onClose }) {
     { icon: 'home', title: 'Home', route: '/' },
     { icon: 'chart-bar', title: 'App Rankings', route: '/ranking' },
     { icon: 'information', title: 'About', route: '/about' },
-    { icon: 'shield-check', title: 'Privacy Guide', route: '/privacy-dashboard' },
-    { icon: 'cog', title: 'Settings', route: null },
-    { icon: 'help-circle', title: 'Help & Support', route: null },
+    { icon: 'shield-check', title: 'Privacy Guide', route: '/privacy-guide' },
+    { icon: 'cog', title: 'Settings', route: '/settings' },
+    { icon: 'help-circle', title: 'Help & Support', route: '/help-support' },
   ];
 
   const handleMenuPress = (item) => {
@@ -214,16 +214,5 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     paddingVertical: 20,
-  },
-  footerItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    gap: 16,
-  },
-  footerText: {
-    ...typography.body,
-    color: colors.textSecondary,
   },
 });

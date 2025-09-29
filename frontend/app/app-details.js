@@ -55,14 +55,14 @@ export default function AppDetailsScreen() {
     return parseFloat(rating).toFixed(1);
   };
 
-  // Function to generate app description based on actual backend data
+  // Function to generate app description that aligns with Privacy Insights
   const getAppDescription = () => {
     // Check if we have notes from backend (this is what your backend provides)
     if (parsedApp.notes) {
       return parsedApp.notes;
     }
     
-    // Generate a meaningful description based on available data
+    // Generate a meaningful description that aligns with privacy insights
     const descriptionParts = [];
     
     // Add basic app information
@@ -84,10 +84,16 @@ export default function AppDetailsScreen() {
       descriptionParts.push(`developed by ${parsedApp.developer}`);
     }
     
-    // Add privacy score information
+    // Add privacy score information that aligns with Privacy Insights
     if (parsedApp.privacyScore !== undefined && parsedApp.privacyScore !== null) {
-      const scoreDesc = getScoreDescription(parsedApp.privacyScore).toLowerCase();
-      descriptionParts.push(`with a ${scoreDesc} privacy score of ${parsedApp.privacyScore}/100`);
+      if (parsedApp.privacyScore >= 70) {
+        descriptionParts.push('with good privacy practices and minimal data collection');
+      } else if (parsedApp.privacyScore >= 40) {
+        descriptionParts.push('with moderate privacy concerns that users should review');
+      } else {
+        descriptionParts.push('with significant privacy concerns due to substantial data collection');
+      }
+      descriptionParts.push(`(score: ${parsedApp.privacyScore}/100)`);
     }
     
     // Add download information
@@ -271,19 +277,21 @@ export default function AppDetailsScreen() {
           </View>
         )}
 
-        {/* Description Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>App Information</Text>
-          <Text style={styles.description}>
-            {getAppDescription()}
-          </Text>
+        {/* App Information Section */}
+        <View style={styles.infoSection}>
+          <Text style={styles.infoSectionTitle}>App Information</Text>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoText}>
+              {getAppDescription()}
+            </Text>
+          </View>
         </View>
 
         {/* Privacy Insights Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Privacy Insights</Text>
-          <View style={styles.insightsCard}>
-            <Text style={styles.insightsText}>
+        <View style={styles.infoSection}>
+          <Text style={styles.infoSectionTitle}>Privacy Insights</Text>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoText}>
               This app has a privacy score of {parsedApp.privacyScore}/100. 
               {parsedApp.privacyScore >= 70 
                 ? ' This indicates good privacy practices with minimal data collection.'
@@ -296,18 +304,16 @@ export default function AppDetailsScreen() {
         </View>
 
         {/* Recommendations Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recommendations</Text>
-          <View style={styles.recommendationsCard}>
-            {parsedApp.privacyScore >= 70 ? (
-              <Text style={styles.recommendationText}>
-                ✅ This app follows good privacy practices. Safe to use with standard precautions.
-              </Text>
-            ) : (
-              <Text style={styles.recommendationText}>
-                ⚠️ Review app permissions carefully and consider alternatives if privacy is a concern.
-              </Text>
-            )}
+        <View style={styles.infoSection}>
+          <Text style={styles.infoSectionTitle}>Recommendations</Text>
+          <View style={styles.infoCard}>
+            <Text style={styles.infoText}>
+              {parsedApp.privacyScore >= 70 ? (
+                '✅ This app follows good privacy practices. Safe to use with standard precautions.'
+              ) : (
+                '⚠️ Review app permissions carefully and consider alternatives if privacy is a concern.'
+              )}
+            </Text>
           </View>
         </View>
       </ScrollView>
@@ -495,30 +501,29 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 16,
   },
-  description: {
+  // New styles for the information sections matching the image layout
+  infoSection: {
+    marginBottom: 24,
+    marginLeft: 0, // Remove left margin to align with App Overview
+  },
+  infoSectionTitle: {
+    ...typography.heading3,
+    color: colors.text,
+    marginBottom: 12,
+    marginLeft: 0, // Align with App Overview title
+    fontSize: 22,
+  },
+  infoCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: 16,
+    marginLeft: 0, // Remove left margin to align with content
+  },
+  infoText: {
     ...typography.body,
     color: colors.textSecondary,
     lineHeight: 24,
     fontSize: 16,
-  },
-  insightsCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 16,
-  },
-  insightsText: {
-    ...typography.body,
-    color: colors.textSecondary,
-    lineHeight: 24,
-  },
-  recommendationsCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    padding: 16,
-  },
-  recommendationText: {
-    ...typography.body,
-    color: colors.textSecondary,
-    lineHeight: 24,
+    textAlign: 'left',
   },
 });
