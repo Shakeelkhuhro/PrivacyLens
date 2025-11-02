@@ -33,15 +33,23 @@ export default function HomeScreen() {
   const [recentAnalyzed, setRecentAnalyzed] = useState([]);
   const [initialized, setInitialized] = useState(false);
 
-  // Function to detect if an app is data-hungry based on REAL privacy score from backend
+
   const isDataHungryApp = (app) => {
-    // Use the REAL privacy score from backend - no pattern matching
-    if (app.privacyScore !== null && app.privacyScore !== undefined) {
-      return app.privacyScore < 50;
+    if (app && app.privacyScore !== null && app.privacyScore !== undefined) {
+      const score = Number(app.privacyScore);
+      if (!Number.isNaN(score)) return score < 50;
     }
-    
-    // If backend doesn't provide a score, we can't determine - return false or handle as needed
-    return false;
+
+
+    const DATA_HUNGRY_APP_PATTERNS = [
+      'instagram', 'facebook', 'snapchat', 'tiktok', 'whatsapp',
+      'twitter', 'linkedin', 'amazon', 'alexa', 'paypal', 'google',
+      'youtube', 'netflix', 'uber', 'grab', 'foodpanda', 'zoom',
+      'telegram', 'wechat', 'messenger'
+    ];
+
+    const name = (app && (app.appName || app.name) || '').toLowerCase();
+    return DATA_HUNGRY_APP_PATTERNS.some(p => name.includes(p));
   };
 
   // Calculate stats from recentAnalyzed
@@ -117,12 +125,19 @@ export default function HomeScreen() {
       
       // Use EXACTLY what the backend provides - no modifications
       // Backend MUST provide privacyScore for this to work
+      // Normalize privacyScore (accept from metadata or top-level) and coerce to number/null
+      const normalizedScore = (data && data.metadata && data.metadata.privacyScore) != null
+        ? data.metadata.privacyScore
+        : (data && data.privacyScore) != null
+          ? data.privacyScore
+          : null;
+
       const enhancedData = {
         ...data,
         metadata: {
-          ...data.metadata,
-          // Use the actual privacy score exactly as provided by backend
-          privacyScore: data.metadata.privacyScore
+          ...(data.metadata || {}),
+          // Prefer metadata.privacyScore, fallback to top-level privacyScore, coerce to number or null
+          privacyScore: normalizedScore !== null ? (Number.isNaN(Number(normalizedScore)) ? null : Number(normalizedScore)) : null
         }
       };
       
