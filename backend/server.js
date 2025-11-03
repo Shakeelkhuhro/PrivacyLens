@@ -5,6 +5,7 @@ const cheerio = require('cheerio');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const NodeCache = require('node-cache');
+const { analyzePolicyTextWithLLM, isConfigured: isAzureConfigured } = require('./azureOpenAI');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -208,6 +209,9 @@ async function scrapeGooglePlay(appId) {
     // Developer contacts
     const { developerWebsite, developerEmail } = extractDeveloperContacts($);
 
+  // store page text (fallback if privacy policy fetch blocked)
+  const pageText = $('body').text().replace(/\s+/g, ' ').trim();
+
     return {
       appName,
       developer,
@@ -221,6 +225,7 @@ async function scrapeGooglePlay(appId) {
       privacyPolicyUrl,
       developerWebsite,
       developerEmail,
+      storeText: pageText,
       storeUrl: url
     };
   } catch (error) {
@@ -230,7 +235,7 @@ async function scrapeGooglePlay(appId) {
 }
 
 // ---------- scrape privacy policy (enhanced for privacy score) ----------
-async function scrapePrivacyPolicy(url) {
+async function scrapePrivacyPolicy(url, fallbackPageText = null, developerWebsite = null) {
   if (!url || !/^https?:\/\//i.test(url)) return { 
     text: null, 
     dataShared: [], 
@@ -286,6 +291,90 @@ async function scrapePrivacyPolicy(url) {
       developerDataDeletionMechanism: lower.includes('contact') && lower.includes('privacy')
     };
 
+    // If Azure OpenAI is configured, call the LLM to enhance extraction (cached)
+    try {
+      if (isAzureConfigured() && url) {
+        const cacheKey = `llm:${url}`;
+        let llmResult = cache.get(cacheKey);
+        if (!llmResult) {
+          llmResult = await analyzePolicyTextWithLLM(text);
+          if (llmResult) {
+            // Cache LLM result for 24 hours
+            cache.set(cacheKey, llmResult, 24 * 3600);
+          }
+        }
+
+        if (llmResult) {
+          // Merge/override heuristics with LLM outputs when present
+          if (Array.isArray(llmResult.dataCollected) && llmResult.dataCollected.length) {
+            // normalize into objects like heuristics use
+            const normalized = llmResult.dataCollected.map(d => ({ type: d, purpose: 'policy (LLM)' }));
+            // prefer LLM result but keep heuristics if nothing
+            dataCollected.length = 0;
+            dataCollected.push(...normalized);
+          }
+          if (Array.isArray(llmResult.dataShared) && llmResult.dataShared.length) {
+            const normalized = llmResult.dataShared.map(d => ({ type: d, purpose: 'policy (LLM)' }));
+            dataShared.length = 0;
+            dataShared.push(...normalized);
+          }
+          if (llmResult.securityPractices && typeof llmResult.securityPractices === 'object') {
+            // overlay booleans
+            Object.assign(securityPractices, llmResult.securityPractices);
+          }
+          // attach and normalize summary if present
+          if (llmResult.summary) {
+            try {
+              // If LLM returned an array already, use it and trim each entry
+              if (Array.isArray(llmResult.summary)) {
+                const arr = llmResult.summary.map(s => ('' + s).trim()).filter(Boolean).slice(0, 4);
+                // If fewer than 4 items, pad by repeating last item (keeps UI stable)
+                while (arr.length < 4) arr.push(arr[arr.length - 1] || '');
+                securityPractices.__llmSummary = arr;
+              } else if (typeof llmResult.summary === 'string') {
+                // Try to parse JSON in case the model returned a JSON string
+                let parsed = null;
+                try { parsed = JSON.parse(llmResult.summary); } catch (e) { parsed = null; }
+                if (Array.isArray(parsed)) {
+                  const arr = parsed.map(s => ('' + s).trim()).filter(Boolean).slice(0, 4);
+                  while (arr.length < 4) arr.push(arr[arr.length - 1] || '');
+                  securityPractices.__llmSummary = arr;
+                } else {
+                  // Fallback: split by newlines or sentences then build 4 items
+                  let lines = llmResult.summary.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+                  if (lines.length === 0) {
+                    lines = llmResult.summary.split(/(?<=\.|\?|!)\s+/).map(s => s.trim()).filter(Boolean);
+                  }
+                  // If too many short items, join into 4 buckets
+                  if (lines.length >= 4) {
+                    securityPractices.__llmSummary = lines.slice(0,4);
+                  } else {
+                    // Attempt to split longer text into 4 roughly-equal parts by sentence boundaries
+                    const sentences = llmResult.summary.replace(/\s+/g,' ').trim().split(/(?<=\.|\?|!)\s+/).map(s=>s.trim()).filter(Boolean);
+                    const buckets = [[],[],[],[]];
+                    for (let i=0;i<sentences.length;i++) {
+                      buckets[i % 4].push(sentences[i]);
+                    }
+                    const arr = buckets.map(b => b.join(' ').trim()).map(s => s || '');
+                    while (arr.length < 4) arr.push('');
+                    securityPractices.__llmSummary = arr.slice(0,4);
+                  }
+                }
+              }
+            } catch (e) {
+              // As a last resort, store the raw string as a single item and pad
+              const raw = ('' + llmResult.summary).trim();
+              const arr = [raw].slice(0,1);
+              while (arr.length < 4) arr.push('');
+              securityPractices.__llmSummary = arr;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('LLM enhancement failed:', e.message || e);
+    }
+
     return { 
       text: text ? text.slice(0, 3000) : null, 
       dataShared, 
@@ -294,6 +383,64 @@ async function scrapePrivacyPolicy(url) {
     };
   } catch (err) {
     console.error('Privacy scraping failed:', err.message);
+
+    // Fallback strategy when direct privacy policy fetch is blocked (403) or fails:
+    // 1) Try the developer website if provided
+    // 2) Use the Play Store page text (fallbackPageText) and ask the LLM to extract privacy details
+    try {
+      // Try developer website first
+      if (developerWebsite) {
+        try {
+          const { data: devData } = await axios.get(developerWebsite, {
+            timeout: 12000,
+            headers: {
+              'User-Agent': 'Mozilla/5.0',
+              'Accept-Language': 'en-US,en;q=0.9'
+            }
+          });
+          const $dev = cheerio.load(devData);
+          const devText = $dev('body').text().replace(/\s+/g, ' ').trim();
+          const llm = await analyzePolicyTextWithLLM(devText);
+          if (llm) {
+            return {
+              text: devText ? devText.slice(0, 3000) : null,
+              dataShared: Array.isArray(llm.dataShared) ? llm.dataShared.map(d => ({ type: d, purpose: 'policy (LLM)' })) : [],
+              dataCollected: Array.isArray(llm.dataCollected) ? llm.dataCollected.map(d => ({ type: d, purpose: 'policy (LLM)' })) : [],
+              securityPractices: Object.assign({
+                encryptedInTransit: false,
+                secureConnection: false,
+                userDataDeletionRequest: false,
+                developerDataDeletionMechanism: false
+              }, llm.securityPractices || {}, llm.summary ? { __llmSummary: llm.summary } : {})
+            };
+          }
+        } catch (e) {
+          console.error('Developer site fallback failed:', e.message || e);
+        }
+      }
+
+      // Next, try Play Store page text (if provided)
+      if (fallbackPageText) {
+        const llm2 = await analyzePolicyTextWithLLM(fallbackPageText);
+        if (llm2) {
+          return {
+            text: fallbackPageText ? fallbackPageText.slice(0, 3000) : null,
+            dataShared: Array.isArray(llm2.dataShared) ? llm2.dataShared.map(d => ({ type: d, purpose: 'policy (LLM:store)' })) : [],
+            dataCollected: Array.isArray(llm2.dataCollected) ? llm2.dataCollected.map(d => ({ type: d, purpose: 'policy (LLM:store)' })) : [],
+            securityPractices: Object.assign({
+              encryptedInTransit: false,
+              secureConnection: false,
+              userDataDeletionRequest: false,
+              developerDataDeletionMechanism: false
+            }, llm2.securityPractices || {}, llm2.summary ? { __llmSummary: llm2.summary } : {})
+          };
+        }
+      }
+    } catch (fallbackErr) {
+      console.error('Fallback privacy extraction failed:', fallbackErr.message || fallbackErr);
+    }
+
+    // Final fallback: return empty/default structure with an error flag
     return { 
       text: null, 
       dataShared: [], 
@@ -302,7 +449,8 @@ async function scrapePrivacyPolicy(url) {
         encryptedInTransit: false,
         secureConnection: false,
         userDataDeletionRequest: false,
-        developerDataDeletionMechanism: false
+        developerDataDeletionMechanism: false,
+        __error: err && err.message ? err.message : 'fetch_failed'
       }
     };
   }
@@ -322,7 +470,7 @@ app.get('/api/app/:query', async (req, res) => {
   const metadata = await scrapeGooglePlay(appId);
   if (!metadata) return res.status(500).json({ error: 'Failed to fetch metadata' });
 
-  const privacyData = await scrapePrivacyPolicy(metadata.privacyPolicyUrl);
+  const privacyData = await scrapePrivacyPolicy(metadata.privacyPolicyUrl, metadata.storeText, metadata.developerWebsite);
   
   // Calculate privacy score
   const privacyScore = calculatePrivacyScore(metadata, privacyData);
