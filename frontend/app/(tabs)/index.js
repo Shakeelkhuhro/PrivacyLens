@@ -176,6 +176,29 @@ export default function HomeScreen() {
     router.push({ pathname: '/app-details', params: { app: JSON.stringify(app) } });
   };
 
+  // Render a short (max 4-line) LLM summary if available
+  const renderPolicySummary = (raw) => {
+    if (!raw) return null;
+    // raw may be an array of lines (preferred) or a newline/string
+    let parts = [];
+    if (Array.isArray(raw)) {
+      parts = raw.map(s => ('' + s).trim()).filter(Boolean).slice(0,4);
+    } else if (typeof raw === 'string') {
+      parts = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean).slice(0,4);
+    }
+
+    if (parts.length === 0) return null;
+
+    return (
+      <View style={styles.summaryContainer}>
+        <Text style={styles.summaryTitle}>Privacy details (summary)</Text>
+        {parts.map((line, i) => (
+          <Text key={i} style={styles.summaryText} numberOfLines={2}>• {line}</Text>
+        ))}
+      </View>
+    );
+  };
+
   // Navigation functions
   const navigateToDataHungryApps = () => {
     router.push({
@@ -305,6 +328,10 @@ export default function HomeScreen() {
                   Privacy score not available from backend analysis.
                 </Text>
               </View>
+            )}
+            {/* LLM summary (4 lines) if available */}
+            {appData?.dataSafety?.securityPractices?.__llmSummary && (
+              renderPolicySummary(appData.dataSafety.securityPractices.__llmSummary)
             )}
           </View>
         ) : (
@@ -465,6 +492,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     marginBottom: 24,
+  },
+  summaryContainer: {
+    backgroundColor: colors.surface,
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 12,
+    borderColor: colors.border,
+    borderWidth: 1,
+  },
+  summaryTitle: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  summaryText: {
+    ...typography.body,
+    color: colors.text,
+    fontSize: 13,
+    marginBottom: 2,
   },
   subtitle: {
     ...typography.body,
