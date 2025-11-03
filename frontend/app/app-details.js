@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Image,
   Linking,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
@@ -19,8 +20,15 @@ import { getScoreColor, getScoreDescription } from '../src/utils/privacyUtils';
 export default function AppDetailsScreen() {
   const router = useRouter();
   const { app } = useLocalSearchParams();
-  const parsedApp = JSON.parse(app);
-  
+  const initialParsed = JSON.parse(app);
+
+  const [fullApp, setFullApp] = useState(initialParsed);
+  const [loadingFull, setLoadingFull] = useState(false);
+  const [fullError, setFullError] = useState(null);
+
+  // parsedApp remains the primary variable used throughout the file but now points to the possibly-updated fullApp
+  const parsedApp = fullApp;
+
   const scoreColor = getScoreColor(parsedApp.privacyScore);
   const scoreDescription = getScoreDescription(parsedApp.privacyScore);
 
@@ -153,6 +161,62 @@ export default function AppDetailsScreen() {
 
   const dataTypes = getDataTypes();
 
+  // If the full details (dataSafety.summary) are missing, fetch from backend
+  useEffect(() => {
+    const needFetch = !parsedApp?.dataSafety || !parsedApp?.dataSafety?.securityPractices || !parsedApp?.dataSafety?.securityPractices?.__llmSummary;
+    if (!needFetch) return;
+
+    let cancelled = false;
+
+    const loadFullApp = async () => {
+      setLoadingFull(true);
+      setFullError(null);
+      try {
+        const idOrName = parsedApp.packageId || parsedApp.id || parsedApp.appName || parsedApp.name;
+        if (!idOrName) throw new Error('No identifier available to fetch full details');
+        const res = await fetch(`http://localhost:3001/api/app/${encodeURIComponent(idOrName)}`);
+        if (!res.ok) throw new Error('Failed to fetch full app details');
+        const json = await res.json();
+        if (cancelled) return;
+        const merged = {
+          ...(json.metadata || {}),
+          dataSafety: json.dataSafety || parsedApp.dataSafety,
+          notes: json.notes || parsedApp.notes
+        };
+        setFullApp(merged);
+      } catch (err) {
+        if (!cancelled) setFullError(err.message || 'Error fetching details');
+      } finally {
+        if (!cancelled) setLoadingFull(false);
+      }
+    };
+
+    loadFullApp();
+
+    return () => { cancelled = true; };
+  }, []);
+
+  // Render LLM summary if available (array of 4 bullet strings or newline/string)
+  const renderPolicySummary = (raw) => {
+    if (!raw) return null;
+    let parts = [];
+    if (Array.isArray(raw)) {
+      parts = raw.map(s => ('' + s).trim()).filter(Boolean).slice(0,4);
+    } else if (typeof raw === 'string') {
+      parts = raw.split(/\r?\n/).map(s => s.trim()).filter(Boolean).slice(0,4);
+    }
+    if (parts.length === 0) return null;
+
+    return (
+      <View style={styles.summaryContainer}>
+        <Text style={styles.summaryTitle}>Privacy details (summary)</Text>
+        {parts.map((line, i) => (
+          <Text key={i} style={styles.summaryText} numberOfLines={2}>• {line}</Text>
+        ))}
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -250,32 +314,85 @@ export default function AppDetailsScreen() {
           </View>
         )}
 
-        {/* Security Practices Section */}
-        {parsedApp.dataSafety?.securityPractices && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Security Practices</Text>
-            <View style={styles.securityCard}>
-              {parsedApp.dataSafety.securityPractices.encryptedInTransit && (
-                <View style={styles.securityItem}>
-                  <Icon name="lock-check" size={20} color={colors.success} />
-                  <Text style={styles.securityText}>Data encrypted in transit</Text>
+        {/* Security Practices Section - always render and show loading/error/fallback when needed */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Security Practices</Text>
+          <View style={styles.securityCard}>
+            {parsedApp.dataSafety?.securityPractices ? (
+              <>
+                {parsedApp.dataSafety.securityPractices.encryptedInTransit && (
+                  <View style={styles.securityItem}>
+                    <Icon name="lock-check" size={20} color={colors.success} />
+                    <Text style={styles.securityText}>Data encrypted in transit</Text>
+                  </View>
+                )}
+                {parsedApp.dataSafety.securityPractices.secureConnection && (
+                  <View style={styles.securityItem}>
+                    <Icon name="shield-check" size={20} color={colors.success} />
+                    <Text style={styles.securityText}>Secure connection required</Text>
+                  </View>
+                )}
+                {parsedApp.dataSafety.securityPractices.userDataDeletionRequest && (
+                  <View style={styles.securityItem}>
+                    <Icon name="delete-restore" size={20} color={colors.success} />
+                    <Text style={styles.securityText}>User data deletion available</Text>
+                  </View>
+                )}
+              </>
+            ) : (
+              // show loading or error or fallback
+              loadingFull ? (
+                <View style={{ paddingVertical: 12, alignItems: 'center' }}>
+                  <ActivityIndicator size="small" color={colors.accent} />
+                  <Text style={[styles.securityText, { marginTop: 8 }]}>Loading privacy details...</Text>
                 </View>
-              )}
-              {parsedApp.dataSafety.securityPractices.secureConnection && (
-                <View style={styles.securityItem}>
-                  <Icon name="shield-check" size={20} color={colors.success} />
-                  <Text style={styles.securityText}>Secure connection required</Text>
+              ) : fullError ? (
+                <View style={{ paddingVertical: 12 }}>
+                  <Text style={[styles.securityText, { color: colors.error }]}>Could not load privacy details: {fullError}</Text>
+                  <TouchableOpacity onPress={() => {
+                    // retry fetch by resetting fullApp to trigger effect
+                    setFullApp(initialParsed);
+                    setLoadingFull(true);
+                    setFullError(null);
+                    // effect will run on mount only; call loader directly
+                    (async () => {
+                      try {
+                        const idOrName = parsedApp.packageId || parsedApp.id || parsedApp.appName || parsedApp.name;
+                        const res = await fetch(`http://localhost:3001/api/app/${encodeURIComponent(idOrName)}`);
+                        if (!res.ok) throw new Error('Failed to fetch full app details');
+                        const json = await res.json();
+                        const merged = {
+                          ...(json.metadata || {}),
+                          dataSafety: json.dataSafety || parsedApp.dataSafety,
+                          notes: json.notes || parsedApp.notes
+                        };
+                        setFullApp(merged);
+                      } catch (err) {
+                        setFullError(err.message || 'Error fetching details');
+                      } finally { setLoadingFull(false); }
+                    })();
+                  }} style={{ marginTop: 8 }}>
+                    <Text style={[styles.detailValueCustom, { fontSize: 14 }]}>Retry</Text>
+                  </TouchableOpacity>
                 </View>
-              )}
-              {parsedApp.dataSafety.securityPractices.userDataDeletionRequest && (
-                <View style={styles.securityItem}>
-                  <Icon name="delete-restore" size={20} color={colors.success} />
-                  <Text style={styles.securityText}>User data deletion available</Text>
+              ) : (
+                <View style={{ paddingVertical: 12 }}>
+                  <Text style={styles.securityText}>No security practice details available.</Text>
                 </View>
-              )}
-            </View>
+              )
+            )}
           </View>
-        )}
+          {/* LLM summary bullets or fallback */}
+          {loadingFull ? (
+            <View style={{ paddingVertical: 12, alignItems: 'center' }}>
+              <ActivityIndicator size="small" color={colors.accent} />
+            </View>
+          ) : fullError ? (
+            <Text style={[styles.securityText, { color: colors.error, marginTop: 8 }]}>Summary not available: {fullError}</Text>
+          ) : (
+            renderPolicySummary(parsedApp.dataSafety?.securityPractices?.__llmSummary || parsedApp.__llmSummary || parsedApp.securityPractices?.__llmSummary)
+          )}
+        </View>
 
         {/* App Information Section */}
         <View style={styles.infoSection}>
@@ -525,5 +642,25 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     fontSize: 16,
     textAlign: 'left',
+  },
+  summaryContainer: {
+    backgroundColor: colors.surface,
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 12,
+    borderColor: colors.border,
+    borderWidth: 1,
+  },
+  summaryTitle: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  summaryText: {
+    ...typography.body,
+    color: colors.text,
+    fontSize: 14,
+    marginBottom: 6,
   },
 });
