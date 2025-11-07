@@ -10,7 +10,7 @@ PrivacyLens is a small web + backend app that analyzes mobile app privacy polici
 
 ## Architecture
 
-![PrivacyLens architecture diagram](./diagram.svg)
+![PrivacyLens architecture diagram](./diagram.png)
 
 The diagram above shows the request flow: Frontend → Backend → (Play Store scraper / privacy policy fetcher). If a direct policy is available it's parsed and optionally enhanced with the LLM; if blocked, the backend uses the developer site or Play Store text as a fallback input to the LLM. Results are normalized and cached before returning to the frontend.
 
