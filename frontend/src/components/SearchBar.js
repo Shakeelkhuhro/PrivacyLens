@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 import {
   View,
   TextInput,
@@ -8,16 +8,26 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { colors } from '../styles/colors';
 import { typography } from '../styles/typography';
 
-export default function SearchBar({ 
-  value, 
-  onChangeText, 
-  placeholder = 'Search...',
-  onSubmit 
-}) {
+const SearchBar = forwardRef(function SearchBar(
+  { value, onChangeText, placeholder = 'Search...', onSubmit },
+  ref
+) {
+  const inputRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current && inputRef.current.focus && inputRef.current.focus();
+    },
+    blur: () => {
+      inputRef.current && inputRef.current.blur && inputRef.current.blur();
+    }
+  }));
+
   return (
     <View style={styles.container}>
       <Icon name="magnify" size={20} color={colors.textSecondary} style={styles.icon} />
       <TextInput
+        ref={inputRef}
         style={styles.input}
         value={value}
         onChangeText={onChangeText}
@@ -28,7 +38,9 @@ export default function SearchBar({
       />
     </View>
   );
-}
+});
+
+export default SearchBar;
 
 const styles = StyleSheet.create({
   container: {
@@ -38,14 +50,26 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
+    position: 'relative',
     marginBottom: 20,
   },
   icon: {
-    marginRight: 12,
+    // position the icon absolutely so it doesn't sit inside the input area
+    position: 'absolute',
+    left: 12,
+    top: '50%',
+    transform: [{ translateY: -10 }],
+    zIndex: 2,
   },
   input: {
     flex: 1,
     ...typography.body,
     color: colors.text,
+    // leave space for the absolutely positioned icon
+    paddingLeft: 44,
+    backgroundColor: 'transparent',
+    // remove default focus outline on web
+    outlineWidth: 0,
+    outlineColor: 'transparent',
   },
 });
