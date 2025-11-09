@@ -16,6 +16,7 @@ import DataTypeIcon from '../src/components/DataTypeIcon';
 import { colors } from '../src/styles/colors';
 import { typography } from '../src/styles/typography';
 import { getScoreColor, getScoreDescription } from '../src/utils/privacyUtils';
+import { API_BASE } from '../src/config';
 
 export default function AppDetailsScreen() {
   const router = useRouter();
@@ -174,7 +175,7 @@ export default function AppDetailsScreen() {
       try {
         const idOrName = parsedApp.packageId || parsedApp.id || parsedApp.appName || parsedApp.name;
         if (!idOrName) throw new Error('No identifier available to fetch full details');
-        const res = await fetch(`http://localhost:3001/api/app/${encodeURIComponent(idOrName)}`);
+  const res = await fetch(`${API_BASE}/api/app/${encodeURIComponent(idOrName)}`);
         if (!res.ok) throw new Error('Failed to fetch full app details');
         const json = await res.json();
         if (cancelled) return;
@@ -358,7 +359,7 @@ export default function AppDetailsScreen() {
                     (async () => {
                       try {
                         const idOrName = parsedApp.packageId || parsedApp.id || parsedApp.appName || parsedApp.name;
-                        const res = await fetch(`http://localhost:3001/api/app/${encodeURIComponent(idOrName)}`);
+                        const res = await fetch(`${API_BASE}/api/app/${encodeURIComponent(idOrName)}`);
                         if (!res.ok) throw new Error('Failed to fetch full app details');
                         const json = await res.json();
                         const merged = {

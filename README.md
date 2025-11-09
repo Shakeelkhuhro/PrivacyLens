@@ -37,6 +37,8 @@ $env:AZURE_OPENAI_DEPLOYMENT = "your-deployment-name"
 
 # Start backend
 npm run dev   # or: node server.js
+# Backend runs on http://localhost:3000 by default
+# But mine is on http://localhost:4002 -- adjust FRONTEND env var accordingly due to port conflicts
 ```
 
 3. Frontend

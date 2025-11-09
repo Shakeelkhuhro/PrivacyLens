@@ -16,6 +16,7 @@ import { useRouter } from 'expo-router';
 import AppCard from '../../src/components/AppCard';
 import SearchBar from '../../src/components/SearchBar';
 import DrawerMenu from '../../src/components/DrawerMenu';
+import { API_BASE } from '../../src/config';
 import { colors } from '../../src/styles/colors';
 import { typography } from '../../src/styles/typography';
 
@@ -117,7 +118,7 @@ export default function HomeScreen() {
     setError(null);
     setAppData(null);
     try {
-      const response = await fetch(`http://localhost:3001/api/app/${encodeURIComponent(query)}`);
+    const response = await fetch(`${API_BASE}/api/app/${encodeURIComponent(query)}`);
       if (!response.ok) throw new Error('App not found or backend error');
       const data = await response.json();
       
