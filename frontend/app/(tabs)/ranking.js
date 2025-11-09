@@ -34,6 +34,39 @@ export default function RankingScreen() {
     loadRecentAnalyzedApps();
   }, []);
 
+  // Listen for updates to recentAnalyzed from other parts of the app (same window)
+  useEffect(() => {
+    const handler = (ev) => {
+      try {
+        const parsed = ev?.detail || [];
+        const apps = parsed.map(item => {
+          const metadata = item.metadata || item;
+          return {
+            id: metadata.packageId || metadata.id || Math.random().toString(),
+            name: metadata.appName || metadata.name || 'Unknown App',
+            developer: metadata.developer || 'Unknown Developer',
+            icon: metadata.icon,
+            privacyScore: metadata.privacyScore !== undefined ? metadata.privacyScore : null,
+            category: metadata.category,
+            ...metadata
+          };
+        });
+        setRecentAnalyzed(apps);
+      } catch (err) {
+        console.error('Error processing recentAnalyzedUpdated event', err);
+      }
+    };
+
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      window.addEventListener('recentAnalyzedUpdated', handler);
+    }
+    return () => {
+      if (typeof window !== 'undefined' && typeof window.removeEventListener === 'function') {
+        window.removeEventListener('recentAnalyzedUpdated', handler);
+      }
+    };
+  }, []);
+
   
   useEffect(() => {
     if (filter === 'privacy-respecting') {

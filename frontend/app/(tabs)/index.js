@@ -95,6 +95,14 @@ export default function HomeScreen() {
       if (typeof window !== 'undefined' && window.localStorage) {
         try {
           window.localStorage.setItem('recentAnalyzed', JSON.stringify(updated));
+            try {
+              // Notify other parts of the app in the same window that recentAnalyzed changed
+              if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+                window.dispatchEvent(new CustomEvent('recentAnalyzedUpdated', { detail: updated }));
+              }
+            } catch (e) {
+              // ignore
+            }
         } catch (error) {
           console.error('Error saving to localStorage:', error);
         }
