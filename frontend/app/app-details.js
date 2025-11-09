@@ -405,9 +405,34 @@ export default function AppDetailsScreen() {
         <View style={styles.infoSection}>
           <Text style={styles.infoSectionTitle}>App Information</Text>
           <View style={styles.infoCard}>
-            <Text style={styles.infoText}>
-              {getAppDescription()}
-            </Text>
+              {(() => {
+                const hasNumericScore = typeof parsedApp.privacyScore === 'number';
+                if (!hasNumericScore) {
+                  return (
+                    <Text style={styles.infoText}>
+                      App information is partially unavailable because detailed analysis failed to fetch.
+                      {parsedApp.privacyPolicyUrl ? ' The Play Store listing provides a developer privacy policy link.' : ' No privacy policy link was found on the Play Store listing.'}
+                    </Text>
+                  );
+                }
+
+                if (parsedApp.privacyScore <= 50) {
+                  return (
+                    <Text style={styles.infoText}>
+                      {getAppDescription()}
+                      {' '}This app appears to collect substantial user data and may share it with third parties.
+                    </Text>
+                  );
+                }
+
+                // privacy-respecting (>=51)
+                return (
+                  <Text style={styles.infoText}>
+                    {getAppDescription()}
+                    {' '}This app follows stronger privacy practices compared to typical apps in its category.
+                  </Text>
+                );
+              })()}
           </View>
         </View>
 
@@ -415,15 +440,32 @@ export default function AppDetailsScreen() {
         <View style={styles.infoSection}>
           <Text style={styles.infoSectionTitle}>Privacy Insights</Text>
           <View style={styles.infoCard}>
-            <Text style={styles.infoText}>
-              This app has a privacy score of {parsedApp.privacyScore}/100. 
-              {parsedApp.privacyScore >= 70 
-                ? ' This indicates good privacy practices with minimal data collection.'
-                : parsedApp.privacyScore >= 40
-                ? ' This indicates moderate privacy concerns. Consider reviewing what data is collected.'
-                : ' This indicates significant privacy concerns. This app collects substantial amounts of user data.'
+            {(() => {
+              const hasNumericScore = typeof parsedApp.privacyScore === 'number';
+              if (!hasNumericScore) {
+                const err = parsedApp.privacyScoreError || parsedApp.dataSafety?.securityPractices?.__error || fullError;
+                return (
+                  <Text style={styles.infoText}>
+                    Privacy details are not available for this app.{err ? ` Reason: ${err}` : ''} You can try retrying or review the developer policy link manually.
+                  </Text>
+                );
               }
-            </Text>
+
+              if (parsedApp.privacyScore >= 51) {
+                return (
+                  <Text style={styles.infoText}>
+                    This app has a privacy score of {parsedApp.privacyScore}/100. This indicates good privacy practices with minimal data collection.
+                  </Text>
+                );
+              }
+
+              // data-hungry (<=50)
+              return (
+                <Text style={styles.infoText}>
+                  This app has a privacy score of {parsedApp.privacyScore}/100. This indicates significant privacy concerns and that the app collects substantial amounts of user data.
+                </Text>
+              );
+            })()}
           </View>
         </View>
 
@@ -431,13 +473,30 @@ export default function AppDetailsScreen() {
         <View style={styles.infoSection}>
           <Text style={styles.infoSectionTitle}>Recommendations</Text>
           <View style={styles.infoCard}>
-            <Text style={styles.infoText}>
-              {parsedApp.privacyScore >= 70 ? (
-                '✅ This app follows good privacy practices. Safe to use with standard precautions.'
-              ) : (
-                '⚠️ Review app permissions carefully and consider alternatives if privacy is a concern.'
-              )}
-            </Text>
+            {(() => {
+              const hasNumericScore = typeof parsedApp.privacyScore === 'number';
+              if (!hasNumericScore) {
+                return (
+                  <Text style={styles.infoText}>
+                    ⚠️ Detailed recommendations are unavailable because analysis failed. Review the developer privacy policy and app permissions manually before installing.
+                  </Text>
+                );
+              }
+
+              if (parsedApp.privacyScore >= 51) {
+                return (
+                  <Text style={styles.infoText}>
+                    ✅ This app follows stronger privacy practices. Standard precautions are recommended (review permissions, keep app updated).
+                  </Text>
+                );
+              }
+
+              return (
+                <Text style={styles.infoText}>
+                  ⚠️ Review app permissions carefully and consider alternatives if privacy is a concern. Limit sensitive permissions where possible.
+                </Text>
+              );
+            })()}
           </View>
         </View>
       </ScrollView>
