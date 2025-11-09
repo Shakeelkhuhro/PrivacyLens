@@ -147,6 +147,16 @@ export default function HomeScreen() {
       setAppData(enhancedData);
       addToRecentAnalyzed(enhancedData);
       setShowStats(false);
+      // Auto-navigate to the appropriate ranking/filter view based on the privacy score
+      // If score < 50 -> data-hungry side; if score > 50 -> privacy-respecting side
+      const finalScore = enhancedData?.metadata?.privacyScore;
+      if (typeof finalScore === 'number') {
+        if (finalScore < 50) {
+          router.push({ pathname: '/ranking', params: { filter: 'data-hungry' } });
+        } else if (finalScore > 50) {
+          router.push({ pathname: '/ranking', params: { filter: 'privacy-respecting' } });
+        }
+      }
     } catch (err) {
       setError(err.message || 'Failed to fetch app data');
     } finally {
