@@ -220,6 +220,12 @@ export default function AppDetailsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Show scraping error banner when backend reports a scraping/extraction failure */}
+      {parsedApp?.dataSafety?.securityPractices?.__error && (
+        <View style={styles.scrapeErrorBanner}>
+          <Text style={styles.scrapeErrorText}>Couldn't fetch privacy details from the policy (extraction failed).</Text>
+        </View>
+      )}
       <View style={styles.header}>
         <TouchableOpacity 
           style={styles.backButton} 
@@ -663,5 +669,19 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 14,
     marginBottom: 6,
+  },
+  scrapeErrorBanner: {
+    backgroundColor: '#ffdddd',
+    borderLeftWidth: 4,
+    borderLeftColor: colors.error,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    margin: 12,
+    borderRadius: 8,
+  },
+  scrapeErrorText: {
+    color: colors.error,
+    ...typography.body,
+    fontWeight: '700'
   },
 });

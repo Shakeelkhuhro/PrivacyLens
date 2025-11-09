@@ -147,6 +147,11 @@ export default function HomeScreen() {
       setAppData(enhancedData);
       addToRecentAnalyzed(enhancedData);
       setShowStats(false);
+      // If backend indicated a scraping error, surface a warning in the UI
+      const scrapingError = (enhancedData?.dataSafety?.securityPractices && enhancedData.dataSafety.securityPractices.__error) || null;
+      if (scrapingError) {
+        setError("Couldn't fetch privacy details (extraction failed)");
+      }
       // Auto-navigate to the appropriate ranking/filter view based on the privacy score
       // If score < 50 -> data-hungry side; if score > 50 -> privacy-respecting side
       const finalScore = enhancedData?.metadata?.privacyScore;

@@ -70,8 +70,10 @@ function extractDeveloperContacts($) {
 
 function calculatePrivacyScore(metadata, privacyData) {
   let score = 100;
-
+  // If no privacy policy URL on store, penalize
   if (!metadata.privacyPolicyUrl) score -= 30;
+
+  // Penalize if we detected collected/shared data
   if (privacyData.dataCollected && privacyData.dataCollected.length > 0) score -= 20;
   if (privacyData.dataShared && privacyData.dataShared.length > 0) score -= 25;
 
@@ -445,6 +447,14 @@ app.get('/api/app/:query', async (req, res) => {
   // Add privacy score to metadata
   metadata.privacyScore = privacyScore;
 
+  // If scraping/extraction failed, don't present a numeric score — surface an error instead
+  if (privacyData?.securityPractices && privacyData.securityPractices.__error) {
+    const errMsg = privacyData.securityPractices.__error;
+    metadata.privacyScoreError = typeof errMsg === 'string' ? errMsg : JSON.stringify(errMsg);
+    // Null out numeric score so frontends show the error state instead of a number
+    metadata.privacyScore = null;
+  }
+
   const result = {
     metadata,
     dataSafety: {
@@ -454,7 +464,8 @@ app.get('/api/app/:query', async (req, res) => {
     },
     notes: metadata.privacyPolicyUrl
       ? 'App has a developer privacy policy link on Play Store.'
-      : 'No developer privacy policy link found on Play Store section.'
+      : 'No developer privacy policy link found on Play Store section.',
+    scrapingError: privacyData.securityPractices && privacyData.securityPractices.__error ? privacyData.securityPractices.__error : null
   };
 
   console.log(`📊 Privacy Score for ${metadata.appName}: ${privacyScore}/100`);

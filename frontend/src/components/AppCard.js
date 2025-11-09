@@ -22,6 +22,7 @@ export default function AppCard({ app, onPress, showScore = false, showArrow = f
 
   const scoreColor = getScoreColor(app.privacyScore);
   const scoreDescription = getScoreDescription(app.privacyScore);
+  const hasScoreError = !!(app.privacyScoreError || app.scrapingError);
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
@@ -63,13 +64,22 @@ export default function AppCard({ app, onPress, showScore = false, showArrow = f
         {showScore && (
           <View style={styles.scoreContainer}>
             <Text style={styles.scoreLabel}>Privacy Score: </Text>
-            <Text style={[styles.scoreValue, { color: scoreColor }]}>
-              {app.privacyScore !== null && app.privacyScore !== undefined ? app.privacyScore : 'N/A'}
-            </Text>
-            {app.privacyScore !== null && app.privacyScore !== undefined && (
-              <Text style={[styles.scoreDescription, { color: scoreColor }]}>
-                • {scoreDescription}
-              </Text>
+            {hasScoreError ? (
+              <View style={styles.scoreErrorContainer}>
+                <Icon name="alert-circle" size={14} color={colors.error} />
+                <Text style={[styles.scoreErrorText]}> Unable to extract policy</Text>
+              </View>
+            ) : (
+              <>
+                <Text style={[styles.scoreValue, { color: scoreColor }]}> 
+                  {app.privacyScore !== null && app.privacyScore !== undefined ? app.privacyScore : 'N/A'}
+                </Text>
+                {app.privacyScore !== null && app.privacyScore !== undefined && (
+                  <Text style={[styles.scoreDescription, { color: scoreColor }]}> 
+                    • {scoreDescription}
+                  </Text>
+                )}
+              </>
             )}
           </View>
         )}
@@ -188,6 +198,17 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
     marginLeft: 4,
+  },
+  scoreErrorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  scoreErrorText: {
+    ...typography.caption,
+    color: colors.error,
+    fontSize: 12,
+    marginLeft: 6,
+    fontWeight: '700',
   },
   arrowContainer: {
     marginLeft: 8,
