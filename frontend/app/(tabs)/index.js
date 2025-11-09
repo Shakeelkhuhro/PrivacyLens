@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -33,6 +33,7 @@ export default function HomeScreen() {
 
   const [recentAnalyzed, setRecentAnalyzed] = useState([]);
   const [initialized, setInitialized] = useState(false);
+  const searchRef = useRef(null);
 
 
   const isDataHungryApp = (app) => {
@@ -241,7 +242,13 @@ export default function HomeScreen() {
           <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
             <Icon name="menu" size={24} color={colors.text} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.searchButton} onPress={handleSearchSubmit}>
+          <TouchableOpacity style={styles.searchButton} onPress={() => {
+              if (searchQuery && searchQuery.trim()) {
+                handleSearchSubmit();
+              } else if (searchRef && searchRef.current && searchRef.current.focus) {
+                searchRef.current.focus();
+              }
+            }}>
             <Icon name="magnify" size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -259,6 +266,7 @@ export default function HomeScreen() {
         {}
         <View style={styles.searchContainer}>
           <SearchBar
+            ref={searchRef}
             value={searchQuery}
             onChangeText={handleSearch}
             placeholder="Search apps, categories..."
