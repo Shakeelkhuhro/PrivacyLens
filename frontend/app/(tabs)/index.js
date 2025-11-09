@@ -38,7 +38,7 @@ export default function HomeScreen() {
   const isDataHungryApp = (app) => {
     if (app && app.privacyScore !== null && app.privacyScore !== undefined) {
       const score = Number(app.privacyScore);
-      if (!Number.isNaN(score)) return score < 50;
+      if (!Number.isNaN(score)) return score <= 50;
     }
 
 
@@ -153,12 +153,12 @@ export default function HomeScreen() {
         setError("Couldn't fetch privacy details (extraction failed)");
       }
       // Auto-navigate to the appropriate ranking/filter view based on the privacy score
-      // If score < 50 -> data-hungry side; if score > 50 -> privacy-respecting side
+      // If score <= 50 -> data-hungry side; if score >= 51 -> privacy-respecting side
       const finalScore = enhancedData?.metadata?.privacyScore;
       if (typeof finalScore === 'number') {
-        if (finalScore < 50) {
+        if (finalScore <= 50) {
           router.push({ pathname: '/ranking', params: { filter: 'data-hungry' } });
-        } else if (finalScore > 50) {
+        } else if (finalScore >= 51) {
           router.push({ pathname: '/ranking', params: { filter: 'privacy-respecting' } });
         }
       }

@@ -49,7 +49,7 @@ export default function AppCard({ app, onPress, showScore = false, showArrow = f
           <Text style={styles.appName} numberOfLines={1}>
             {app.name || app.appName || 'Unknown App'}
           </Text>
-          {showDataHungryBadge && (app.isDataHungry || app.privacyScore < 50) && (
+          {showDataHungryBadge && (app.isDataHungry || app.privacyScore <= 50) && (
             <View style={styles.dataHungryBadge}>
               <Icon name="alert" size={12} color={colors.background} />
               <Text style={styles.dataHungryText}>Data Hungry</Text>

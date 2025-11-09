@@ -265,7 +265,7 @@ export const getRecentAnalysis = () => {
   return mockApps.slice(0, 10);
 };
 export const getDataHungryApps = () => {
-  return mockApps.filter(app => app.privacyScore < 50);
+  return mockApps.filter(app => app.privacyScore <= 50);
 };
 
 
@@ -295,7 +295,7 @@ export const getPrivacyStats = () => {
   const totalApps = mockApps.length;
   const excellentApps = mockApps.filter(app => app.privacyScore >= 80).length;
   const goodApps = mockApps.filter(app => app.privacyScore >= 60 && app.privacyScore < 80).length;
-  const poorApps = mockApps.filter(app => app.privacyScore < 50).length;
+  const poorApps = mockApps.filter(app => app.privacyScore <= 50).length;
   const averageScore = Math.round(mockApps.reduce((sum, app) => sum + app.privacyScore, 0) / totalApps);
 
   return {

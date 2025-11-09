@@ -79,7 +79,7 @@ export default function RankingScreen() {
   // Function to detect if an app is data-hungry (same as index.js)
   const isDataHungryApp = (app) => {
     if (app.privacyScore !== null && app.privacyScore !== undefined) {
-      return app.privacyScore < 50;
+      return app.privacyScore <= 50;
     }
     
     const appName = app.name?.toLowerCase() || app.appName?.toLowerCase() || '';
