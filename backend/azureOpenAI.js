@@ -34,11 +34,8 @@ async function callChat(messages = [], temperature = 0.2, maxTokens = 800) {
   return resp.data;
 }
 
-/**
- * Analyze a privacy policy text using Azure OpenAI and return parsed JSON with keys:
- * { dataCollected: [...], dataShared: [...], securityPractices: { encryptedInTransit, secureConnection, userDataDeletionRequest, developerDataDeletionMechanism } }
- * Returns null if not configured or on parse failure.
- */
+// Analyze policy text via Azure OpenAI and return parsed JSON (dataCollected, dataShared, securityPractices).
+// Returns null when Azure isn't configured or on failure.
 async function analyzePolicyTextWithLLM(text) {
   if (!isConfigured() || !text) return null;
 

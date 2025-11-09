@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
@@ -21,7 +20,6 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// ---------- helpers ----------
 function absoluteUrl(href, base = 'https://play.google.com') {
   if (!href) return null;
   try {
@@ -34,7 +32,6 @@ function absoluteUrl(href, base = 'https://play.google.com') {
 
 function preferDeveloperPrivacyLink(candidates) {
   if (!candidates.length) return null;
-  // Prefer non-Google domains (developer's own site), then any privacy link.
   const nonGoogle = candidates.find(u => !/google\.com/i.test(u));
   return nonGoogle || candidates[0];
 }
@@ -59,7 +56,6 @@ function extractDownloadsFromHtml($) {
   }
   return null;
 }
-
 function extractDeveloperContacts($) {
   const website = $('a[href^="http"]').filter((i, el) => {
     const txt = $(el).text().toLowerCase();
@@ -72,56 +68,27 @@ function extractDeveloperContacts($) {
   return { developerWebsite: website || null, developerEmail: email || null };
 }
 
-// ---------- Privacy Score Calculation ----------
 function calculatePrivacyScore(metadata, privacyData) {
-  let score = 100; // Start with perfect score
-  
-  // 1. Privacy Policy Presence (-30 if missing)
-  if (!metadata.privacyPolicyUrl) {
-    score -= 30;
-  }
-  
-  // 2. Data Collection (-20 if data is collected)
-  if (privacyData.dataCollected && privacyData.dataCollected.length > 0) {
-    score -= 20;
-  }
-  
-  // 3. Data Sharing (-25 if data is shared)
-  if (privacyData.dataShared && privacyData.dataShared.length > 0) {
-    score -= 25;
-  }
-  
-  // 4. Developer Reputation (adjust based on known data-hungry developers)
-  const dataHungryDevelopers = [
-    'meta', 'facebook', 'instagram', 'whatsapp', 
-    'google', 'alphabet', 'tiktok', 'bytedance',
-    'amazon', 'microsoft', 'twitter', 'snap'
-  ];
-  
+  let score = 100;
+
+  if (!metadata.privacyPolicyUrl) score -= 30;
+  if (privacyData.dataCollected && privacyData.dataCollected.length > 0) score -= 20;
+  if (privacyData.dataShared && privacyData.dataShared.length > 0) score -= 25;
+
+  const dataHungryDevelopers = ['meta','facebook','instagram','whatsapp','google','alphabet','tiktok','bytedance','amazon','microsoft','twitter','snap'];
   const developerLower = metadata.developer?.toLowerCase() || '';
-  if (dataHungryDevelopers.some(dev => developerLower.includes(dev))) {
-    score -= 15;
-  }
-  
-  // 5. App Category Risk (social/media apps are higher risk)
-  const highRiskCategories = ['social', 'communication', 'entertainment', 'dating'];
+  if (dataHungryDevelopers.some(dev => developerLower.includes(dev))) score -= 15;
+
+  const highRiskCategories = ['social','communication','entertainment','dating'];
   const categoryLower = metadata.category?.toLowerCase() || '';
-  if (highRiskCategories.some(cat => categoryLower.includes(cat))) {
-    score -= 10;
-  }
-  
-  // 6. Security Practices (+10 if good security)
+  if (highRiskCategories.some(cat => categoryLower.includes(cat))) score -= 10;
+
   if (privacyData.securityPractices) {
-    const practices = privacyData.securityPractices;
-    if (practices.encryptedInTransit && practices.secureConnection) {
-      score += 10;
-    }
-    if (practices.userDataDeletionRequest && practices.developerDataDeletionMechanism) {
-      score += 5;
-    }
+    const p = privacyData.securityPractices;
+    if (p.encryptedInTransit && p.secureConnection) score += 10;
+    if (p.userDataDeletionRequest && p.developerDataDeletionMechanism) score += 5;
   }
-  
-  // Ensure score is between 0 and 100
+
   return Math.max(0, Math.min(100, score));
 }
 

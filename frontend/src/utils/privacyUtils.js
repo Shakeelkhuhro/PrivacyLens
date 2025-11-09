@@ -22,20 +22,11 @@ export const getScoreLevel = (score) => {
 };
 
 export const calculatePrivacyScore = (dataTypes, permissions, sharingPractices) => {
-  // Base score starts at 100
   let score = 100;
-  
-  // Deduct points for each data type collected
   score -= dataTypes.length * 5;
-  
-  // Deduct points for sensitive permissions
   const sensitiveTypes = ['location', 'contacts', 'camera', 'microphone'];
-  const sensitiveCount = dataTypes.filter(type => 
-    sensitiveTypes.includes(type.toLowerCase())
-  ).length;
+  const sensitiveCount = dataTypes.filter(type => sensitiveTypes.includes(type.toLowerCase())).length;
   score -= sensitiveCount * 10;
-  
-  // Ensure score is between 0 and 100
   return Math.max(0, Math.min(100, score));
 };
 

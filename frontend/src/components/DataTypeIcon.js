@@ -3,7 +3,6 @@ import Icon from '@expo/vector-icons/MaterialCommunityIcons';
 import { colors } from '../styles/colors';
 
 const iconMap = {
-  // Data types
   location: 'map-marker',
   contacts: 'account-multiple',
   email: 'email',

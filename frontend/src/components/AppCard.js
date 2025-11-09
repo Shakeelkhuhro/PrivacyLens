@@ -6,7 +6,6 @@ import { typography } from '../styles/typography';
 
 export default function AppCard({ app, onPress, showScore = false, showArrow = false, rank, showDataHungryBadge = false }) {
   
-  // Function to get score color based on value
   const getScoreColor = (score) => {
     if (score === null || score === undefined) return colors.textSecondary;
     if (score >= 70) return colors.success;
@@ -14,7 +13,6 @@ export default function AppCard({ app, onPress, showScore = false, showArrow = f
     return colors.error;
   };
 
-  // Function to get score description
   const getScoreDescription = (score) => {
     if (score === null || score === undefined) return 'Not rated';
     if (score >= 70) return 'Excellent';

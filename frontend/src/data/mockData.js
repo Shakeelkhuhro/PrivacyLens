@@ -1,5 +1,4 @@
 export const mockApps = [
-  // Recently Analyzed Apps (10 items - App 01 to App 10)
   {
     id: '1',
     name: 'App 01',
@@ -151,7 +150,7 @@ export const mockApps = [
     thirdPartyTrackers: 6,
   },
 
-  // Data Hungry Apps (5 items - low privacy scores)
+  
   {
     id: '11',
     name: 'DataHungry Social',
@@ -228,7 +227,7 @@ export const mockApps = [
     thirdPartyTrackers: 18,
   },
 
-  // Additional apps for variety (these won't appear in recent analysis)
+  
   {
     id: '16',
     name: 'SecureVault',
@@ -265,24 +264,22 @@ export const mockApps = [
 export const getRecentAnalysis = () => {
   return mockApps.slice(0, 10);
 };
-
-// Function to get data hungry apps (apps with privacy score < 50)
 export const getDataHungryApps = () => {
   return mockApps.filter(app => app.privacyScore < 50);
 };
+
 
 // Function to get top privacy apps (apps with privacy score >= 80)
 export const getTopPrivacyApps = () => {
   return mockApps.filter(app => app.privacyScore >= 80);
 };
-
-// Function to get apps by category
 export const getAppsByCategory = (category) => {
   if (category === 'all') return mockApps;
   return mockApps.filter(app => app.category.toLowerCase().includes(category.toLowerCase()));
 };
 
 // Function to search apps
+
 export const searchApps = (query) => {
   if (!query) return mockApps;
   
@@ -294,7 +291,6 @@ export const searchApps = (query) => {
   );
 };
 
-// Privacy score statistics
 export const getPrivacyStats = () => {
   const totalApps = mockApps.length;
   const excellentApps = mockApps.filter(app => app.privacyScore >= 80).length;

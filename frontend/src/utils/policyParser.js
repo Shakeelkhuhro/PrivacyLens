@@ -1,10 +1,3 @@
-// utils/policyParser.js
-
-/**
- * Parses raw privacy policy text and extracts relevant data points
- * such as types of user data collected.
- */
-
 export const parsePolicy = (text) => {
   const collectedData = [];
 
