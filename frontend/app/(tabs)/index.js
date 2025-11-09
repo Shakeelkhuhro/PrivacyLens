@@ -145,14 +145,6 @@ export default function HomeScreen() {
       }
       
       
-      const finalScore = enhancedData?.metadata?.privacyScore;
-      if (typeof finalScore === 'number') {
-        if (finalScore <= 50) {
-          router.push({ pathname: '/ranking', params: { filter: 'data-hungry' } });
-        } else if (finalScore >= 51) {
-          router.push({ pathname: '/ranking', params: { filter: 'privacy-respecting' } });
-        }
-      }
     } catch (err) {
       setError(err.message || 'Failed to fetch app data');
     } finally {
