@@ -79,23 +79,21 @@ export default function RankingScreen() {
   
   const isDataHungryApp = (app) => {
     if (app.privacyScore !== null && app.privacyScore !== undefined) {
-      return app.privacyScore <= 50;
+      return Number(app.privacyScore) <= 50;
     }
-    
-    const appName = app.name?.toLowerCase() || app.appName?.toLowerCase() || '';
-    return DATA_HUNGRY_APP_PATTERNS.some(pattern => 
-      appName.includes(pattern)
-    );
+
+    // No numeric score -> do not classify
+    return false;
   };
 
   // Categorize apps
   const dataHungryApps = recentAnalyzed
     .filter(app => isDataHungryApp(app))
-    .sort((a, b) => (a.privacyScore || 0) - (b.privacyScore || 0));
+    .sort((a, b) => (Number(a.privacyScore) || 0) - (Number(b.privacyScore) || 0));
 
   const privacyRespectingApps = recentAnalyzed
-    .filter(app => !isDataHungryApp(app))
-    .sort((a, b) => (b.privacyScore || 0) - (a.privacyScore || 0));
+    .filter(app => typeof app.privacyScore === 'number' && Number(app.privacyScore) >= 51)
+    .sort((a, b) => (Number(b.privacyScore) || 0) - (Number(a.privacyScore) || 0));
 
   // All apps sorted by privacy score (best to worst)
   const allApps = recentAnalyzed.sort((a, b) => (b.privacyScore || 0) - (a.privacyScore || 0));

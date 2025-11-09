@@ -36,31 +36,22 @@ export default function HomeScreen() {
 
 
   const isDataHungryApp = (app) => {
+    // Only classify as data-hungry when we have a numeric score
     if (app && app.privacyScore !== null && app.privacyScore !== undefined) {
       const score = Number(app.privacyScore);
       if (!Number.isNaN(score)) return score <= 50;
     }
 
-
-    const DATA_HUNGRY_APP_PATTERNS = [
-      'instagram', 'facebook', 'snapchat', 'tiktok', 'whatsapp',
-      'twitter', 'linkedin', 'amazon', 'alexa', 'paypal', 'google',
-      'youtube', 'netflix', 'uber', 'grab', 'foodpanda', 'zoom',
-      'telegram', 'wechat', 'messenger'
-    ];
-
-    const name = (app && (app.appName || app.name) || '').toLowerCase();
-    return DATA_HUNGRY_APP_PATTERNS.some(p => name.includes(p));
+    // No numeric score -> do not classify
+    return false;
   };
 
   // Calculate stats from recentAnalyzed
   const totalAppsAnalyzed = recentAnalyzed.length;
-  const dataHungryApps = recentAnalyzed.filter(app => 
-    isDataHungryApp(app.metadata)
-  );
+  const dataHungryApps = recentAnalyzed.filter(app => isDataHungryApp(app.metadata));
   const dataHungryAppsCount = dataHungryApps.length;
-  const privacyRespectingAppsCount = recentAnalyzed.filter(app => 
-    !isDataHungryApp(app.metadata) && app.metadata.privacyScore !== undefined
+  const privacyRespectingAppsCount = recentAnalyzed.filter(app =>
+    typeof app.metadata.privacyScore === 'number' && Number(app.metadata.privacyScore) >= 51
   ).length;
 
   // Load from localStorage on mount (web only)
