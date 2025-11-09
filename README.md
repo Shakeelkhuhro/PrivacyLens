@@ -14,6 +14,34 @@ PrivacyLens is a small web + backend app that analyzes mobile app privacy polici
 
 The diagram above shows the request flow: Frontend → Backend → (Play Store scraper / privacy policy fetcher). If a direct policy is available it's parsed and optionally enhanced with the LLM; if blocked, the backend uses the developer site or Play Store text as a fallback input to the LLM. Results are normalized and cached before returning to the frontend.
 
+## Tech stack & tools
+
+A concise list of the main technologies, libraries and developer tools used across the project.
+
+- Backend
+  - Language / runtime: Node.js (CommonJS)
+  - Web framework: Express
+  - Key libraries: axios, cheerio (HTML parsing), google-play-scraper (Play Store metadata), node-cache (simple in-memory caching), express-rate-limit, cors
+  - LLM integration: Azure OpenAI (see `backend/azureOpenAI.js` for usage)
+  - Dev: nodemon for development hot-reload
+
+- Frontend (mobile-first / Expo)
+  - Framework: React + React Native using Expo
+  - Router: `expo-router`
+  - Key libraries: `@expo/vector-icons`, `react-native-gesture-handler`, `react-native-reanimated`, `react-native-safe-area-context`, `react-native-screens`, `react-native-svg`, `react-native-web` (web compatibility)
+  - Entry: Expo app (see `frontend/app` and `app.json`)
+
+- Tools & Services
+  - Local development: Node.js, npm/yarn, Expo CLI (for running the frontend mobile/web app)
+  - Source control: Git
+  - LLM provider: Azure OpenAI (endpoint, deployment and API key stored in backend env)
+
+- Languages / Formats
+  - JavaScript (ES) across frontend and backend
+  - JSON for configuration (package.json, app.json)
+
+This section is kept intentionally short — see `backend/package.json` and `frontend/package.json` for exact dependency versions used in the project.
+
 ## Quickstart (Windows / PowerShell)
 
 1. Clone and open the repo (you already have it):
