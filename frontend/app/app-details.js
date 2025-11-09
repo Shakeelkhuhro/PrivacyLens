@@ -27,7 +27,7 @@ export default function AppDetailsScreen() {
   const [loadingFull, setLoadingFull] = useState(false);
   const [fullError, setFullError] = useState(null);
 
-  // parsedApp remains the primary variable used throughout the file but now points to the possibly-updated fullApp
+  
   const parsedApp = fullApp;
 
   const scoreColor = getScoreColor(parsedApp.privacyScore);
@@ -39,7 +39,7 @@ export default function AppDetailsScreen() {
     }
   };
 
-  // Function to format downloads count
+  
   const formatDownloads = (downloads) => {
     if (!downloads) return '-';
     
@@ -81,19 +81,19 @@ export default function AppDetailsScreen() {
       descriptionParts.push('This app is');
     }
     
-    // Add category information
+    
     if (parsedApp.category) {
       descriptionParts.push(`a ${parsedApp.category.toLowerCase()} application`);
     } else {
       descriptionParts.push('a mobile application');
     }
     
-    // Add developer information
+    
     if (parsedApp.developer) {
       descriptionParts.push(`developed by ${parsedApp.developer}`);
     }
     
-    // Add privacy score information that aligns with Privacy Insights
+    
     if (parsedApp.privacyScore !== undefined && parsedApp.privacyScore !== null) {
       if (parsedApp.privacyScore >= 70) {
         descriptionParts.push('with good privacy practices and minimal data collection');
@@ -105,40 +105,40 @@ export default function AppDetailsScreen() {
       descriptionParts.push(`(score: ${parsedApp.privacyScore}/100)`);
     }
     
-    // Add download information
+    
     if (parsedApp.downloads) {
       descriptionParts.push(`and has been downloaded ${formatDownloads(parsedApp.downloads)} times`);
     }
     
-    // Add privacy policy status
+    
     if (parsedApp.privacyPolicyUrl) {
       descriptionParts.push('The app provides a privacy policy for user review');
     } else {
       descriptionParts.push('No specific privacy policy link was found for this application');
     }
     
-    // Join all parts into a coherent description
+    
     let description = descriptionParts.join(' ');
     
-    // Ensure the description ends with a period
+    
     if (!description.endsWith('.')) {
       description += '.';
     }
     
-    // Capitalize the first letter
+    
     description = description.charAt(0).toUpperCase() + description.slice(1);
     
     return description;
   };
 
-  // Function to extract data types from backend dataSafety information
+  
   const getDataTypes = () => {
-    // If dataTypes field exists, use it
+    
     if (parsedApp.dataTypes && parsedApp.dataTypes.length > 0) {
       return parsedApp.dataTypes;
     }
     
-    // Extract from dataSafety.dataCollected if available
+    
     const dataTypes = [];
     if (parsedApp.dataSafety && parsedApp.dataSafety.dataCollected) {
       parsedApp.dataSafety.dataCollected.forEach(item => {
@@ -148,7 +148,7 @@ export default function AppDetailsScreen() {
       });
     }
     
-    // Extract from dataCollected if available
+    
     if (parsedApp.dataCollected) {
       parsedApp.dataCollected.forEach(item => {
         if (item.type && !dataTypes.includes(item.type)) {
@@ -162,7 +162,7 @@ export default function AppDetailsScreen() {
 
   const dataTypes = getDataTypes();
 
-  // If the full details (dataSafety.summary) are missing, fetch from backend
+  
   useEffect(() => {
     const needFetch = !parsedApp?.dataSafety || !parsedApp?.dataSafety?.securityPractices || !parsedApp?.dataSafety?.securityPractices?.__llmSummary;
     if (!needFetch) return;
@@ -197,7 +197,7 @@ export default function AppDetailsScreen() {
     return () => { cancelled = true; };
   }, []);
 
-  // Render LLM summary if available (array of 4 bullet strings or newline/string)
+  
   const renderPolicySummary = (raw) => {
     if (!raw) return null;
     let parts = [];
@@ -220,7 +220,7 @@ export default function AppDetailsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Show scraping error banner when backend reports a scraping/extraction failure */}
+      {}
       {parsedApp?.dataSafety?.securityPractices?.__error && (
         <View style={styles.scrapeErrorBanner}>
           <Text style={styles.scrapeErrorText}>Couldn't fetch privacy details from the policy (extraction failed).</Text>
@@ -256,7 +256,7 @@ export default function AppDetailsScreen() {
           <Text style={styles.category}>{parsedApp.category || 'SOCIAL'}</Text>
         </View>
 
-        {/* App Overview Section */}
+        {}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>App Overview</Text>
           <View style={styles.overviewCardCustom}>
@@ -293,7 +293,7 @@ export default function AppDetailsScreen() {
           </View>
         </View>
 
-        {/* Privacy Score Section */}
+        {}
         <View style={styles.scoreSection}>
           <Text style={styles.sectionTitle}>Privacy Score</Text>
           <View style={styles.scoreContainer}>
@@ -306,7 +306,7 @@ export default function AppDetailsScreen() {
           </View>
         </View>
 
-        {/* Data Collected Section */}
+        {}
         {dataTypes.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Data Collected</Text>
@@ -321,7 +321,7 @@ export default function AppDetailsScreen() {
           </View>
         )}
 
-        {/* Security Practices Section - always render and show loading/error/fallback when needed */}
+        {}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Security Practices</Text>
           <View style={styles.securityCard}>
@@ -347,7 +347,7 @@ export default function AppDetailsScreen() {
                 )}
               </>
             ) : (
-              // show loading or error or fallback
+              
               loadingFull ? (
                 <View style={{ paddingVertical: 12, alignItems: 'center' }}>
                   <ActivityIndicator size="small" color={colors.accent} />
@@ -357,11 +357,11 @@ export default function AppDetailsScreen() {
                 <View style={{ paddingVertical: 12 }}>
                   <Text style={[styles.securityText, { color: colors.error }]}>Could not load privacy details: {fullError}</Text>
                   <TouchableOpacity onPress={() => {
-                    // retry fetch by resetting fullApp to trigger effect
+                    
                     setFullApp(initialParsed);
                     setLoadingFull(true);
                     setFullError(null);
-                    // effect will run on mount only; call loader directly
+                    
                     (async () => {
                       try {
                         const idOrName = parsedApp.packageId || parsedApp.id || parsedApp.appName || parsedApp.name;
@@ -389,7 +389,7 @@ export default function AppDetailsScreen() {
               )
             )}
           </View>
-          {/* LLM summary bullets or fallback */}
+          {}
           {loadingFull ? (
             <View style={{ paddingVertical: 12, alignItems: 'center' }}>
               <ActivityIndicator size="small" color={colors.accent} />
@@ -401,7 +401,7 @@ export default function AppDetailsScreen() {
           )}
         </View>
 
-        {/* App Information Section */}
+        {}
         <View style={styles.infoSection}>
           <Text style={styles.infoSectionTitle}>App Information</Text>
           <View style={styles.infoCard}>
@@ -411,7 +411,7 @@ export default function AppDetailsScreen() {
           </View>
         </View>
 
-        {/* Privacy Insights Section */}
+        {}
         <View style={styles.infoSection}>
           <Text style={styles.infoSectionTitle}>Privacy Insights</Text>
           <View style={styles.infoCard}>
@@ -427,7 +427,7 @@ export default function AppDetailsScreen() {
           </View>
         </View>
 
-        {/* Recommendations Section */}
+        {}
         <View style={styles.infoSection}>
           <Text style={styles.infoSectionTitle}>Recommendations</Text>
           <View style={styles.infoCard}>
@@ -625,23 +625,23 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 16,
   },
-  // New styles for the information sections matching the image layout
+  
   infoSection: {
     marginBottom: 24,
-    marginLeft: 0, // Remove left margin to align with App Overview
+    marginLeft: 0, 
   },
   infoSectionTitle: {
     ...typography.heading3,
     color: colors.text,
     marginBottom: 12,
-    marginLeft: 0, // Align with App Overview title
+    marginLeft: 0, 
     fontSize: 22,
   },
   infoCard: {
     backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
-    marginLeft: 0, // Remove left margin to align with content
+    marginLeft: 0, 
   },
   infoText: {
     ...typography.body,

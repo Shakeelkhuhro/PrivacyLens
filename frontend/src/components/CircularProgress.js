@@ -33,7 +33,7 @@ export default function CircularProgress({
   return (
     <View style={{ width: size, height: size }}>
       <Svg width={size} height={size}>
-        {/* Background Circle */}
+        {}
         <Circle
           cx={size / 2}
           cy={size / 2}
@@ -43,7 +43,7 @@ export default function CircularProgress({
           fill="transparent"
         />
         
-        {/* Progress Circle */}
+        {}
         <AnimatedCircle
           cx={size / 2}
           cy={size / 2}

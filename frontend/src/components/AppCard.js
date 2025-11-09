@@ -32,7 +32,7 @@ export default function AppCard({ app, onPress, showScore = false, showArrow = f
         </View>
       )}
 
-      {/* App Icon */}
+      {}
       <View style={styles.iconContainer}>
         {app.icon ? (
           <Image source={{ uri: app.icon }} style={styles.appIcon} />
@@ -43,7 +43,7 @@ export default function AppCard({ app, onPress, showScore = false, showArrow = f
         )}
       </View>
 
-      {/* App Info */}
+      {}
       <View style={styles.infoContainer}>
         <View style={styles.nameContainer}>
           <Text style={styles.appName} numberOfLines={1}>
@@ -85,7 +85,7 @@ export default function AppCard({ app, onPress, showScore = false, showArrow = f
         )}
       </View>
 
-      {/* Optional Arrow */}
+      {}
       {showArrow && (
         <View style={styles.arrowContainer}>
           <Icon name="chevron-right" size={20} color={colors.textSecondary} />

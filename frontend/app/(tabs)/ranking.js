@@ -13,7 +13,7 @@ import { colors } from '../../src/styles/colors';
 import { typography } from '../../src/styles/typography';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
-// Common data-hungry apps pattern detection (same as index.js)
+
 const DATA_HUNGRY_APP_PATTERNS = [
   'instagram', 'facebook', 'snapchat', 'tiktok', 'whatsapp',
   'twitter', 'linkedin', 'amazon', 'alexa', 'paypal', 'google',
@@ -24,9 +24,9 @@ const DATA_HUNGRY_APP_PATTERNS = [
 export default function RankingScreen() {
   const router = useRouter();
   const { filter } = useLocalSearchParams();
-  const [activeTab, setActiveTab] = useState('ALL-APPS'); // Default to all apps
+  const [activeTab, setActiveTab] = useState('ALL-APPS'); 
 
-  // Load recent analyzed apps from localStorage
+  
   const [recentAnalyzed, setRecentAnalyzed] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,14 +34,14 @@ export default function RankingScreen() {
     loadRecentAnalyzedApps();
   }, []);
 
-  // Set active tab based on filter parameter
+  
   useEffect(() => {
     if (filter === 'privacy-respecting') {
       setActiveTab('PRIVACY-RESPECTING');
     } else if (filter === 'data-hungry') {
       setActiveTab('DATA-HUNGRY');
     } else {
-      setActiveTab('ALL-APPS'); // Default to all apps when no filter
+      setActiveTab('ALL-APPS'); 
     }
   }, [filter]);
 
@@ -53,7 +53,7 @@ export default function RankingScreen() {
           const parsedData = JSON.parse(stored);
           console.log('Loaded from localStorage:', parsedData);
           
-          // Extract app metadata and ensure proper structure
+          
           const apps = parsedData.map(item => {
             const metadata = item.metadata || item;
             return {
@@ -76,7 +76,7 @@ export default function RankingScreen() {
     setLoading(false);
   };
 
-  // Function to detect if an app is data-hungry (same as index.js)
+  
   const isDataHungryApp = (app) => {
     if (app.privacyScore !== null && app.privacyScore !== undefined) {
       return app.privacyScore <= 50;
@@ -112,7 +112,7 @@ export default function RankingScreen() {
     });
   };
 
-  // Handle tab change
+  
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };

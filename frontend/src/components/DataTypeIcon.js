@@ -14,7 +14,7 @@ const iconMap = {
   photos: 'image',
   messages: 'message',
   
-  // App categories
+  
   social: 'account-group',
   messaging: 'message',
   productivity: 'briefcase',
@@ -26,7 +26,7 @@ const iconMap = {
   travel: 'airplane',
   news: 'newspaper',
   
-  // Default fallback
+  
   app: 'application',
   default: 'apps'
 };

@@ -24,7 +24,7 @@ export default function DrawerMenu({ visible, onClose }) {
   const slideAnim = React.useRef(new Animated.Value(-width)).current;
   const backdropAnim = React.useRef(new Animated.Value(0)).current;
 
-  // Animate drawer and backdrop
+  
   React.useEffect(() => {
     if (visible) {
       Animated.parallel([
@@ -39,7 +39,7 @@ export default function DrawerMenu({ visible, onClose }) {
           useNativeDriver: true,
         })
       ]).start();
-      // Announce for accessibility
+      
       AccessibilityInfo.announceForAccessibility?.('Menu opened');
     } else {
       Animated.parallel([
@@ -57,7 +57,7 @@ export default function DrawerMenu({ visible, onClose }) {
     }
   }, [visible, slideAnim, backdropAnim]);
 
-  // Auto-close on route change
+  
   React.useEffect(() => {
     const unsub = router?.addListener?.('routeChangeComplete', onClose);
     return () => unsub && unsub();
@@ -111,7 +111,7 @@ export default function DrawerMenu({ visible, onClose }) {
           accessibilityViewIsModal={true}
           accessibilityLabel="Navigation menu"
         >
-          {/* Header */}
+          {}
           <View style={styles.drawerHeader}>
             <View style={styles.logoContainer}>
               <Icon name="shield-check" size={40} color={colors.accent} />
@@ -120,7 +120,7 @@ export default function DrawerMenu({ visible, onClose }) {
             <Text style={styles.appVersion}>v1.0.0</Text>
           </View>
 
-          {/* Menu Items */}
+          {}
           <View style={styles.menuItems}>
             {menuItems.map((item, index) => (
               <TouchableOpacity
@@ -138,7 +138,7 @@ export default function DrawerMenu({ visible, onClose }) {
             ))}
           </View>
 
-          {/* Footer */}
+          {}
           <View style={styles.drawerFooter}>
           </View>
         </Animated.View>

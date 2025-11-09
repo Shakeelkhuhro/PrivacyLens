@@ -79,7 +79,7 @@ export default function HomeScreen() {
     setInitialized(true);
   }, []);
 
-  // Add to recentAnalyzed when a new app is fetched successfully
+  
   const addToRecentAnalyzed = (newAppData) => {
     if (!newAppData || !newAppData.metadata) return;
 
@@ -91,16 +91,16 @@ export default function HomeScreen() {
       let updated;
       
       if (existingIndex !== -1) {
-        // App already exists, remove it from current position
+        
         updated = prev.filter((_, index) => index !== existingIndex);
-        // Add it to the beginning (most recent)
+        
         updated = [newAppData, ...updated];
       } else {
-        // New app, add to beginning and maintain max 10 items
+        
         updated = [newAppData, ...prev].slice(0, 10);
       }
       
-      // Save to localStorage
+      
       if (typeof window !== 'undefined' && window.localStorage) {
         try {
           window.localStorage.setItem('recentAnalyzed', JSON.stringify(updated));
@@ -122,11 +122,11 @@ export default function HomeScreen() {
       if (!response.ok) throw new Error('App not found or backend error');
       const data = await response.json();
       
-      console.log('Backend response:', data); // Debug log
+      console.log('Backend response:', data); 
       
-      // Use EXACTLY what the backend provides - no modifications
-      // Backend MUST provide privacyScore for this to work
-      // Normalize privacyScore (accept from metadata or top-level) and coerce to number/null
+      
+      
+      
       const normalizedScore = (data && data.metadata && data.metadata.privacyScore) != null
         ? data.metadata.privacyScore
         : (data && data.privacyScore) != null
@@ -137,23 +137,23 @@ export default function HomeScreen() {
         ...data,
         metadata: {
           ...(data.metadata || {}),
-          // Prefer metadata.privacyScore, fallback to top-level privacyScore, coerce to number or null
+          
           privacyScore: normalizedScore !== null ? (Number.isNaN(Number(normalizedScore)) ? null : Number(normalizedScore)) : null
         }
       };
       
-      console.log('Enhanced app data:', enhancedData); // Debug log
+      console.log('Enhanced app data:', enhancedData); 
       
       setAppData(enhancedData);
       addToRecentAnalyzed(enhancedData);
       setShowStats(false);
-      // If backend indicated a scraping error, surface a warning in the UI
+      
       const scrapingError = (enhancedData?.dataSafety?.securityPractices && enhancedData.dataSafety.securityPractices.__error) || null;
       if (scrapingError) {
         setError("Couldn't fetch privacy details (extraction failed)");
       }
-      // Auto-navigate to the appropriate ranking/filter view based on the privacy score
-      // If score <= 50 -> data-hungry side; if score >= 51 -> privacy-respecting side
+      
+      
       const finalScore = enhancedData?.metadata?.privacyScore;
       if (typeof finalScore === 'number') {
         if (finalScore <= 50) {
@@ -177,7 +177,7 @@ export default function HomeScreen() {
     if (searchQuery.trim()) fetchAppData(searchQuery.trim());
   };
 
-  // Clear app analysis and show stats again
+  
   const handleClearAnalysis = () => {
     setAppData(null);
     setShowStats(true);
@@ -192,10 +192,10 @@ export default function HomeScreen() {
     router.push({ pathname: '/app-details', params: { app: JSON.stringify(app) } });
   };
 
-  // Render a short (max 4-line) LLM summary if available
+  
   const renderPolicySummary = (raw) => {
     if (!raw) return null;
-    // raw may be an array of lines (preferred) or a newline/string
+    
     let parts = [];
     if (Array.isArray(raw)) {
       parts = raw.map(s => ('' + s).trim()).filter(Boolean).slice(0,4);
@@ -215,7 +215,7 @@ export default function HomeScreen() {
     );
   };
 
-  // Navigation functions
+  
   const navigateToDataHungryApps = () => {
     router.push({
       pathname: '/ranking',
@@ -234,7 +234,7 @@ export default function HomeScreen() {
     router.push('/ranking');
   };
 
-  // Clear all recent analyzed apps
+  
   const clearRecentAnalyzed = () => {
     setRecentAnalyzed([]);
     if (typeof window !== 'undefined' && window.localStorage) {
@@ -245,7 +245,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {}
         <View style={styles.header}>
           <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
             <Icon name="menu" size={24} color={colors.text} />
@@ -255,7 +255,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* App Title */}
+        {}
         <View style={styles.titleContainer}>
           <Image
             source={require('../../assets/r-bg.png')}
@@ -265,7 +265,7 @@ export default function HomeScreen() {
           <Text style={styles.subtitle}>Protecting your digital privacy</Text>
         </View>
 
-        {/* Search Bar */}
+        {}
         <View style={styles.searchContainer}>
           <SearchBar
             value={searchQuery}
@@ -275,7 +275,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* Loading/Error/App Data UI and Conditional Stats */}
+        {}
         {loading && (
           <View style={styles.loadingOverlay}>
             <View style={styles.loadingBox}>
@@ -308,7 +308,7 @@ export default function HomeScreen() {
                 name: appData.metadata.appName,
                 developer: appData.metadata.developer,
                 icon: appData.metadata.icon,
-                privacyScore: appData.metadata.privacyScore, // REAL score from backend
+                privacyScore: appData.metadata.privacyScore, 
                 isDataHungry: isDataHungryApp(appData.metadata)
               }}
               onPress={() => {
@@ -320,7 +320,7 @@ export default function HomeScreen() {
               showArrow={true}
             />
             
-            {/* Show appropriate message based on REAL privacy score */}
+            {}
             {appData.metadata.privacyScore !== undefined && appData.metadata.privacyScore !== null ? (
               isDataHungryApp(appData.metadata) ? (
                 <View style={styles.dataHungryWarning}>
@@ -345,16 +345,16 @@ export default function HomeScreen() {
                 </Text>
               </View>
             )}
-            {/* LLM summary (4 lines) if available */}
+            {}
             {appData?.dataSafety?.securityPractices?.__llmSummary && (
               renderPolicySummary(appData.dataSafety.securityPractices.__llmSummary)
             )}
           </View>
         ) : (
           <View>
-            {/* Statistics */}
+            {}
             <View style={styles.statsContainer}>
-              {/* Total Apps Analyzed - Goes to All Apps (no filter) */}
+              {}
               <TouchableOpacity 
                 style={styles.statCard} 
                 onPress={navigateToAllApps}
@@ -367,7 +367,7 @@ export default function HomeScreen() {
                 <Text style={styles.statLabel}>Total Apps Analyzed</Text>
               </TouchableOpacity>
               
-              {/* Data Hungry Apps - Goes to Data-Hungry section */}
+              {}
               <TouchableOpacity 
                 style={[
                   styles.statCard, 
@@ -388,7 +388,7 @@ export default function HomeScreen() {
                 <Text style={styles.statLabel}>Data Hungry Apps</Text>
               </TouchableOpacity>
 
-              {/* Privacy Respecting Apps - Goes to Privacy-Respecting section */}
+              {}
               <TouchableOpacity 
                 style={[
                   styles.statCard, 
@@ -412,7 +412,7 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Recent Analysis */}
+        {}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Analysis</Text>
@@ -422,7 +422,7 @@ export default function HomeScreen() {
                   <Text style={styles.clearButtonText}>Clear All</Text>
                 </TouchableOpacity>
               )}
-              {/* View All goes to All Apps (no filter) */}
+              {}
               <TouchableOpacity onPress={navigateToAllApps}>
                 <Text style={styles.viewAllText}>View All</Text>
               </TouchableOpacity>
@@ -451,7 +451,7 @@ export default function HomeScreen() {
                     id: app.metadata.packageId,
                     name: app.metadata.appName,
                     developer: app.metadata.developer,
-                    privacyScore: app.metadata.privacyScore, // REAL score from backend
+                    privacyScore: app.metadata.privacyScore, 
                     icon: app.metadata.icon,
                     isDataHungry: isDataHungryApp(app.metadata),
                     ...app.metadata

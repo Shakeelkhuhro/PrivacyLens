@@ -10,13 +10,13 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.accent, // Active icon and text color
-        tabBarInactiveTintColor: colors.textSecondary, // Inactive icon and text color
+        tabBarActiveTintColor: colors.accent, 
+        tabBarInactiveTintColor: colors.textSecondary, 
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 70, // Increased height for better spacing
+          height: 70, 
           paddingBottom: 8,
           paddingTop: 8,
           paddingHorizontal: 10,
@@ -24,11 +24,11 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
-          marginBottom: 6, // Added margin below labels for better spacing
-          marginTop: 2, // Small margin above text
+          marginBottom: 6, 
+          marginTop: 2, 
         },
         tabBarIconStyle: {
-          marginBottom: 4, // Space between icon and label
+          marginBottom: 4, 
         },
         headerShown: false,
       }}

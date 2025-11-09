@@ -1,0 +1,24 @@
+{
+  "name": "privacylens",
+  "version": "1.0.0",
+  "description": "PrivacyLens is a small web + backend app that analyzes mobile app privacy policies and Play Store metadata, enhances them using an LLM (Azure OpenAI), and surfaces a concise 4-bullet privacy summary in the UI.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shakeelkhuhro/PrivacyLens.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Shakeelkhuhro/PrivacyLens/issues"
+  },
+  "homepage": "https://github.com/Shakeelkhuhro/PrivacyLens#readme",
+  "dependencies": {
+    "fast-glob": "^3.3.3",
+    "strip-comments": "^2.0.1"
+  }
+}

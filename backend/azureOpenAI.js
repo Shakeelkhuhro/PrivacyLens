@@ -34,12 +34,12 @@ async function callChat(messages = [], temperature = 0.2, maxTokens = 800) {
   return resp.data;
 }
 
-// Analyze policy text via Azure OpenAI and return parsed JSON (dataCollected, dataShared, securityPractices).
-// Returns null when Azure isn't configured or on failure.
+
+
 async function analyzePolicyTextWithLLM(text) {
   if (!isConfigured() || !text) return null;
 
-  const safeText = text.slice(0, 25000); // trim to reasonable size
+  const safeText = text.slice(0, 25000); 
 
   const system = `You are a privacy policy analyzer. Extract what user data the policy says is collected and whether the policy mentions third-party sharing, partners, analytics, and security/deletion practices. Respond with STRICT JSON ONLY, with the following keys:
   - dataCollected: array of short strings (e.g. ["email", "location"]).

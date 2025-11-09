@@ -103,7 +103,7 @@ export default function AboutScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Hero Header */}
+        {}
         <View style={styles.heroSection}>
           <View style={styles.logoContainer}>
             <Icon name="shield-check" size={70} color={colors.accent} />
@@ -118,7 +118,7 @@ export default function AboutScreen() {
           </Text>
         </View>
 
-        {/* Quick Actions Menu */}
+        {}
         <View style={[styles.section, styles.quickActionsSection]}>
           <Text style={styles.sectionTitle}>🚀 Quick Actions</Text>
           <View style={styles.menuGrid}>
@@ -137,7 +137,7 @@ export default function AboutScreen() {
           </View>
         </View>
 
-        {/* Stats Section */}
+        {}
         <View style={[styles.section, styles.statsSection]}>
           <Text style={styles.sectionTitle}>📊 Our Impact</Text>
           <View style={styles.statsGrid}>
@@ -153,7 +153,7 @@ export default function AboutScreen() {
           </View>
         </View>
 
-        {/* Features Grid */}
+        {}
         <View style={[styles.section, styles.featuresSection]}>
           <Text style={styles.sectionTitle}>✨ Key Features</Text>
           <View style={styles.featuresGrid}>
@@ -169,7 +169,7 @@ export default function AboutScreen() {
           </View>
         </View>
 
-        {/* Team Section */}
+        {}
         <View style={[styles.section, styles.teamSection]}>
           <Text style={styles.sectionTitle}>👥 Our Team</Text>
           <View style={styles.teamGrid}>
@@ -185,7 +185,7 @@ export default function AboutScreen() {
           </View>
         </View>
 
-        {/* Footer */}
+        {}
         <View style={styles.footer}>
           <View style={styles.footerContent}>
             <Text style={styles.footerTitle}>Privacy First, Always</Text>

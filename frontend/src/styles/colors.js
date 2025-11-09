@@ -1,4 +1,4 @@
-// styles/colors.js
+
 export const colors = {
   background: '#1a1f36',
   surface: '#2a2f47',

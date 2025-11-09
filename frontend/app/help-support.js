@@ -216,7 +216,7 @@ export default function HelpSupportScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {}
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.backButton}
@@ -230,7 +230,7 @@ export default function HelpSupportScreen() {
           </View>
         </View>
 
-        {/* Privacy Notice */}
+        {}
         <View style={styles.privacyNotice}>
           <Icon name="shield-check" size={20} color="#4CAF50" />
           <Text style={styles.privacyText}>
@@ -238,7 +238,7 @@ export default function HelpSupportScreen() {
           </Text>
         </View>
 
-        {/* Get Help Quickly Section */}
+        {}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Get Help Quickly</Text>
           <View style={styles.getHelpGrid}>
@@ -258,7 +258,7 @@ export default function HelpSupportScreen() {
           </View>
         </View>
 
-        {/* Direct Support Section */}
+        {}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>💬 Direct Email Support</Text>
           <Text style={styles.sectionSubtitle}>
@@ -282,7 +282,7 @@ export default function HelpSupportScreen() {
             ))}
           </View>
 
-          {/* Direct Email Info */}
+          {}
           <View style={styles.emailInfo}>
             <Icon name="email-fast" size={24} color={colors.accent} />
             <View style={styles.emailInfoText}>
@@ -295,7 +295,7 @@ export default function HelpSupportScreen() {
           </View>
         </View>
 
-        {/* FAQ Section */}
+        {}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>❓ Frequently Asked Questions</Text>
 
@@ -347,7 +347,7 @@ export default function HelpSupportScreen() {
           </View>
         </View>
 
-        {/* Footer */}
+        {}
         <View style={styles.footer}>
           <Text style={styles.footerTitle}>Need More Help?</Text>
           <Text style={styles.footerText}>

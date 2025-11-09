@@ -163,7 +163,7 @@ export default function PrivacyGuideScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {}
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.backButton}
@@ -177,7 +177,7 @@ export default function PrivacyGuideScreen() {
           </View>
         </View>
 
-        {/* Hero Section */}
+        {}
         <View style={styles.heroSection}>
           <Text style={styles.heroTitle}>Your Privacy Journey Starts Here</Text>
           <Text style={styles.heroSubtitle}>
@@ -200,7 +200,7 @@ export default function PrivacyGuideScreen() {
           </View>
         </View>
 
-        {/* Quick Tips */}
+        {}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>💡 Quick Privacy Tips</Text>
           <View style={styles.tipsContainer}>
@@ -213,7 +213,7 @@ export default function PrivacyGuideScreen() {
           </View>
         </View>
 
-        {/* Guide Sections */}
+        {}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>📚 Privacy Guides</Text>
           <View style={styles.guideContainer}>
@@ -283,7 +283,7 @@ export default function PrivacyGuideScreen() {
           </View>
         </View>
 
-        {/* Resources */}
+        {}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🔗 Additional Resources</Text>
           <View style={styles.resourcesGrid}>

@@ -20,7 +20,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const appState = useRef(AppState.currentState);
   
-  // State for toggle switches - these reset on app restart (no storage)
+  
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [autoUpdate, setAutoUpdate] = useState(true);
@@ -220,7 +220,7 @@ export default function SettingsScreen() {
       (dataSaver ? 10 : 0) +
       (notifications ? 10 : 0) +
       (autoUpdate ? 10 : 0) +
-      5; // Base score
+      5; 
 
     let status = '';
     if (privacyScore >= 80) status = 'Excellent 🔒';
@@ -254,7 +254,7 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Header */}
+        {}
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.backButton}
@@ -268,7 +268,7 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Privacy Status Card */}
+        {}
         <View style={styles.statusCard}>
           <View style={styles.statusHeader}>
             <Icon name="shield-check" size={24} color="#4CAF50" />
@@ -279,7 +279,7 @@ export default function SettingsScreen() {
           </Text>
         </View>
 
-        {/* App Info Card */}
+        {}
         <View style={styles.appInfoCard}>
           <View style={styles.appIcon}>
             <Icon name="shield-check" size={48} color={colors.accent} />
@@ -292,7 +292,7 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Settings Sections */}
+        {}
         {settingsSections.map((section, sectionIndex) => (
           <View key={sectionIndex} style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -338,7 +338,7 @@ export default function SettingsScreen() {
           </View>
         ))}
 
-        {/* Action Buttons */}
+        {}
         <View style={styles.actionSection}>
           <TouchableOpacity 
             style={[styles.actionButton, styles.primaryButton]}
@@ -365,7 +365,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Footer */}
+        {}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
             🔐 Zero Data Collection • Local Processing Only
@@ -376,7 +376,7 @@ export default function SettingsScreen() {
         </View>
       </ScrollView>
 
-      {/* Export Settings Modal */}
+      {}
       <Modal
         visible={showExportModal}
         animationType="slide"
@@ -385,7 +385,7 @@ export default function SettingsScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            {/* Modal Header */}
+            {}
             <View style={styles.modalHeader}>
               <View style={styles.modalHeaderIcon}>
                 <Icon name="file-export" size={32} color={colors.accent} />
@@ -394,9 +394,9 @@ export default function SettingsScreen() {
               <Text style={styles.modalSubtitle}>Current PrivacyLens Configuration</Text>
             </View>
 
-            {/* Report Content */}
+            {}
             <ScrollView style={styles.reportContent} showsVerticalScrollIndicator={false}>
-              {/* App Info */}
+              {}
               <View style={styles.reportSection}>
                 <Text style={styles.sectionTitle}>Application Information</Text>
                 <View style={styles.infoRow}>
@@ -413,7 +413,7 @@ export default function SettingsScreen() {
                 </View>
               </View>
 
-              {/* Settings Status */}
+              {}
               <View style={styles.reportSection}>
                 <Text style={styles.sectionTitle}>Current Settings Status</Text>
                 <SettingRow label="Push Notifications" value={notifications} isEnabled={notifications} />
@@ -426,7 +426,7 @@ export default function SettingsScreen() {
                 <SettingRow label="Biometric Lock" value={biometric} isEnabled={biometric} />
               </View>
 
-              {/* Privacy Summary */}
+              {}
               <View style={styles.reportSection}>
                 <Text style={styles.sectionTitle}>Privacy Summary</Text>
                 <View style={styles.privacyCard}>
@@ -438,7 +438,7 @@ export default function SettingsScreen() {
               </View>
             </ScrollView>
 
-            {/* Modal Actions */}
+            {}
             <View style={styles.modalActions}>
               <TouchableOpacity 
                 style={[styles.modalButton, styles.modalSecondaryButton]}
@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textSecondary,
   },
-  // Modal Styles
+  
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

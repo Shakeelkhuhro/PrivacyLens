@@ -260,7 +260,7 @@ export const mockApps = [
   },
 ];
 
-// Function to get recent analysis (first 10 apps)
+
 export const getRecentAnalysis = () => {
   return mockApps.slice(0, 10);
 };
@@ -269,7 +269,7 @@ export const getDataHungryApps = () => {
 };
 
 
-// Function to get top privacy apps (apps with privacy score >= 80)
+
 export const getTopPrivacyApps = () => {
   return mockApps.filter(app => app.privacyScore >= 80);
 };
@@ -278,7 +278,7 @@ export const getAppsByCategory = (category) => {
   return mockApps.filter(app => app.category.toLowerCase().includes(category.toLowerCase()));
 };
 
-// Function to search apps
+
 
 export const searchApps = (query) => {
   if (!query) return mockApps;
