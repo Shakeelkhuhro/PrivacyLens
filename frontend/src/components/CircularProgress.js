@@ -5,8 +5,8 @@ import Svg, { Circle } from 'react-native-svg';
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export default function CircularProgress({
-  size = 100,
-  strokeWidth = 8,
+  size = 80,
+  strokeWidth = 6,
   progress = 0,
   color = '#4ECDC4',
   backgroundColor = '#2A2F47',

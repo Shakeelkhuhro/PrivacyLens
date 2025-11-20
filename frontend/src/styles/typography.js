@@ -1,43 +1,43 @@
 export const typography = {
   heading1: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
-    lineHeight: 40,
+    lineHeight: 36,
   },
   heading2: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '600',
-    lineHeight: 32,
+    lineHeight: 30,
   },
   heading3: {
-    fontSize: 20,
-    fontWeight: '600',
-    lineHeight: 28,
-  },
-  subtitle: {
     fontSize: 18,
-    fontWeight: '500',
-    lineHeight: 26,
-  },
-  body: {
-    fontSize: 16,
-    fontWeight: '400',
+    fontWeight: '600',
     lineHeight: 24,
   },
-  caption: {
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    lineHeight: 22,
+  },
+  body: {
     fontSize: 14,
     fontWeight: '400',
     lineHeight: 20,
   },
+  caption: {
+    fontSize: 12,
+    fontWeight: '400',
+    lineHeight: 18,
+  },
   button: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
-    lineHeight: 24,
+    lineHeight: 20,
   },
   overline: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
-    lineHeight: 16,
+    lineHeight: 14,
     textTransform: 'uppercase',
   },
 };

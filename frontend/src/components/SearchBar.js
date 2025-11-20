@@ -25,7 +25,7 @@ const SearchBar = forwardRef(function SearchBar(
 
   return (
     <View style={styles.container}>
-      <Icon name="magnify" size={20} color={colors.textSecondary} style={styles.icon} />
+      <Icon name="magnify" size={18} color={colors.textSecondary} style={styles.icon} />
       <TextInput
         ref={inputRef}
         style={styles.input}
@@ -48,17 +48,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surface,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     position: 'relative',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   icon: {
     // position the icon absolutely so it doesn't sit inside the input area
     position: 'absolute',
     left: 12,
     top: '50%',
-    transform: [{ translateY: -10 }],
+    transform: [{ translateY: -9 }],
     zIndex: 2,
   },
   input: {
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.text,
     // leave space for the absolutely positioned icon
-    paddingLeft: 44,
+    paddingLeft: 40,
     backgroundColor: 'transparent',
     // remove default focus outline on web
     outlineWidth: 0,

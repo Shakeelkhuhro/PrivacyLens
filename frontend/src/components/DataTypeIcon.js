@@ -31,7 +31,7 @@ const iconMap = {
   default: 'apps'
 };
 
-export default function DataTypeIcon({ type, size = 24, color = colors.accent }) {
+export default function DataTypeIcon({ type, size = 18, color = colors.accent }) {
   const iconName = iconMap[type?.toLowerCase()] || iconMap.default;
   
   return (

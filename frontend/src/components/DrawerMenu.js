@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     minWidth: 240,
     height: height,
     backgroundColor: colors.surface,
-    paddingTop: Platform.OS === 'android' ? 50 : 0,
+    paddingTop: Platform.OS === 'android' ? 36 : 0,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
@@ -171,24 +171,24 @@ const styles = StyleSheet.create({
   },
   drawerHeader: {
     alignItems: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
   logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
+    width: 64,
+    height: 64,
+    borderRadius: 16,
     backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   appName: {
     ...typography.heading2,
     color: colors.text,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   appVersion: {
     ...typography.caption,
@@ -196,14 +196,14 @@ const styles = StyleSheet.create({
   },
   menuItems: {
     flex: 1,
-    paddingTop: 20,
+    paddingTop: 12,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    gap: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    gap: 12,
   },
   menuText: {
     ...typography.body,
@@ -213,6 +213,6 @@ const styles = StyleSheet.create({
   drawerFooter: {
     borderTopWidth: 1,
     borderTopColor: colors.border,
-    paddingVertical: 20,
+    paddingVertical: 12,
   },
 });
