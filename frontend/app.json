@@ -21,6 +21,7 @@
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.privacylens.app",
       "edgeToEdgeEnabled": true
     },
     "web": {
@@ -28,6 +29,12 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1d3dbb2d-cd09-4945-969b-2b0d5f3feb2d"
+      }
+    }
   }
 }
