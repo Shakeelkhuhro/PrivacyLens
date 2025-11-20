@@ -22,6 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.privacylens.app",
+      "usesCleartextTraffic": true,
       "edgeToEdgeEnabled": true
     },
     "web": {
@@ -34,7 +35,8 @@
       "router": {},
       "eas": {
         "projectId": "1d3dbb2d-cd09-4945-969b-2b0d5f3feb2d"
-      }
+      },
+      "BACKEND_URL": "http://192.168.1.100:4002"
     }
   }
 }
