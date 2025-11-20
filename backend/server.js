@@ -7,8 +7,11 @@ const NodeCache = require('node-cache');
 const { analyzePolicyTextWithLLM, isConfigured: isAzureConfigured } = require('./azureOpenAI');
 
 const app = express();
-const port = process.env.PORT || 3001;
-const cache = new NodeCache({ stdTTL: 3600 });
+// const port = process.env.PORT || 3001;
+const port = process.env.PORT || 4002;
+// Cache TTL configuration: keep query results for 25 hours (seconds)
+const CACHE_TTL_SECONDS = 25 * 3600;
+const cache = new NodeCache({ stdTTL: CACHE_TTL_SECONDS });
 
 app.use(cors());
 app.use(express.json());
@@ -470,7 +473,8 @@ app.get('/api/app/:query', async (req, res) => {
 
   console.log(`📊 Privacy Score for ${metadata.appName}: ${privacyScore}/100`);
   
-  cache.set(query.toLowerCase(), result);
+  // Store API result in cache for configured TTL so mobile clients see cached responses
+  cache.set(query.toLowerCase(), result, CACHE_TTL_SECONDS);
   res.json(result);
 });
 
@@ -487,4 +491,20 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => res.json({ status: 'OK', timestamp: new Date().toISOString() }));
 
-app.listen(port, () => console.log(`✅ PrivacyLens backend running at http://localhost:${port}`));
+const os = require('os');
+
+function getLocalIpv4() {
+  const ifaces = os.networkInterfaces();
+  for (const name of Object.keys(ifaces)) {
+    for (const iface of ifaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
+const bindHost = '0.0.0.0';
+const displayHost = getLocalIpv4();
+app.listen(port, bindHost, () => console.log(`✅ PrivacyLens backend running at http://${displayHost}:${port} (bound to ${bindHost})`));
